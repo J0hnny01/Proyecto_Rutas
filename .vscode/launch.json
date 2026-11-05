@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Depurar Proyecto Rutas (F5)",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/Debug_Linux/Proyecto_Rutas.bin",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "Compilar (estilo ZinjaI)"
+    }
+  ]
+}

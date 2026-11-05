@@ -1,0 +1,28 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Compilar (estilo ZinjaI)",
+      "type": "shell",
+      "command": "mkdir -p Debug_Linux && g++ -std=c++17 -g -Iinclude $(find src -name '*.cpp') -o Debug_Linux/Proyecto_Rutas.bin -lsfml-graphics -lsfml-audio -lsfml-network -lsfml-window -lsfml-system",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": "$gcc"
+    },
+    {
+      "label": "Ejecutar Proyecto_Rutas",
+      "type": "shell",
+      "command": "./Debug_Linux/Proyecto_Rutas.bin",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "dependsOn": "Compilar (estilo ZinjaI)",
+      "problemMatcher": []
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+# Binarios y carpetas de compilación
+Debug_Linux/
+Debug_Win32/
+Release_Linux/
+Release_Win32/
+*.bin
+*.exe
+*.o
+*.obj
+
+# Archivos temporales de ZinjaI
+*.zpr.user
+*.layout
+
+# Mantener configuración compartida de VS Code / Code OSS
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
