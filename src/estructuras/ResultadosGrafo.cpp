@@ -1,5 +1,18 @@
 #include "ResultadosGrafo.h"
 
+bool esMejorCamino(int costoNuevo, int tiempoNuevo, int costoActual, int tiempoActual, CriterioRuta criterio) {
+    if (criterio == CRITERIO_COSTO) {
+        if (costoNuevo != costoActual) {
+            return costoNuevo < costoActual;
+        }
+        return tiempoNuevo < tiempoActual;
+    }
+    if (tiempoNuevo != tiempoActual) {
+        return tiempoNuevo < tiempoActual;
+    }
+    return costoNuevo < costoActual;
+}
+
 ResultadoRuta::ResultadoRuta()
     : encontrada(false), costoTotal(0), duracionTotal(0), cantidadEscalas(0), caminoIndices() {
 }

@@ -5,6 +5,13 @@
 
 using namespace std;
 
+enum CriterioRuta {
+    CRITERIO_COSTO,
+    CRITERIO_TIEMPO
+};
+
+bool esMejorCamino(int costoNuevo, int tiempoNuevo, int costoActual, int tiempoActual, CriterioRuta criterio);
+
 struct ResultadoRuta {
     bool encontrada;
     int costoTotal;

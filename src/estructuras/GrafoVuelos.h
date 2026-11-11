@@ -29,6 +29,7 @@ private:
     void liberarAdyacentes(int indiceVertice);
     void liberarTodo();
     void copiarDesde(const GrafoVuelos& otro);
+    NodoArista* buscarArista(int indiceOrigen, int indiceDestino) const;
 
 public:
     GrafoVuelos();
