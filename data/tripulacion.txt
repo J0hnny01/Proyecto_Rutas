@@ -1,0 +1,9 @@
+TR-001;Alejandro Vargas;Piloto;TI-AIR01
+TR-002;Sofia Navarro;Copiloto;TI-AIR01
+TR-003;Camila Solis;Sobrecargo;TI-AIR01
+TR-004;Daniel Rojas;Piloto;TI-BOE02
+TR-005;Valeria Castro;Copiloto;TI-BOE02
+TR-006;Mateo Jimenez;Piloto;TI-AIR03
+TR-007;Lucia Mendez;Sobrecargo;TI-AIR03
+TR-008;Andres Chavarria;Piloto;TI-EMB04
+TR-009;Paula Quesada;Sobrecargo;TI-EMB04

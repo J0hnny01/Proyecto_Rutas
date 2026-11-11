@@ -1,0 +1,8 @@
+SJO;San Jose;500;340
+MEX;Ciudad de Mexico;380;195
+MIA;Miami;720;240
+ATL;Atlanta;760;115
+PTY;Panama;630;465
+BOG;Bogota;850;485
+NYC;Nueva York;1015;135
+MAD;Madrid;1100;325
