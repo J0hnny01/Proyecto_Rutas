@@ -8,7 +8,7 @@ Documento de referencia para la implementación de los módulos asignados a **Jo
 
 1. **Cero STL prohibida:** no usar `std::stack`, `std::queue`, `std::deque`, `std::list`, `std::priority_queue`, `std::sort` (ni `std::vector` en las estructuras evaluadas; toda colección interna usa punteros o arreglos dinámicos propios con `new` / `delete` / `delete[]`).
 2. **Plantillas solo cuando hay múltiples usos reales:**
-   - **Con `template <typename T>`:** `Cola<T>` (implementada completa en `include/colas/Cola.h`).
+   - **Con `template <typename T>`:** `Cola<T>` (implementada completa en `src/estructuras/Cola.h`).
    - **Clases concretas (sin `template`):** `ColaPrioridad`, `ConjuntoDisjunto`, `Ordenamiento`, `ArbolABB`, `ArbolAVL` y `ArbolMST`.
 3. **Norma de código:** sin comentarios (`//` ni `/* ... */`) en ningún archivo `.h` o `.cpp`.
 4. **Gestión de memoria:** toda clase con memoria dinámica implementa destructor, constructor de copia y operador de asignación `operator=` (Regla de los 3) para evitar fugas o dobles liberaciones.
@@ -16,7 +16,7 @@ Documento de referencia para la implementación de los módulos asignados a **Jo
 
 ---
 
-## 2. Sprint 1 — Modelos de negocio (`include/modelos/` y `src/modelos/`)
+## 2. Sprint 1 — Modelos de negocio (`src/modelos/`)
 
 ### 2.1 `Aeronave` (`Aeronave.h` / `Aeronave.cpp`)
 | Campo | Tipo | Descripción |
@@ -57,7 +57,7 @@ Métodos clave adicionales a getters/setters:
 
 ## 3. Sprint 1 — TADs base y algoritmos auxiliares
 
-### 3.1 `Cola<T>` (`include/colas/Cola.h`) — *Plantilla completa en `.h`*
+### 3.1 `Cola<T>` (`src/estructuras/Cola.h`) — *Plantilla completa en `.h`*
 Usada para recorridos por niveles en `ArbolABB` (`NodoABB*`), `ArbolAVL` (`NodoAVL*`), `ArbolMST` (`NodoMST*`) y BFS por índices (`int`).
 
 - **Nodo interno:**
@@ -79,7 +79,7 @@ Usada para recorridos por niveles en `ArbolABB` (`NodoABB*`), `ArbolAVL` (`NodoA
   - `limpiar()` — $O(n)$
   - Regla de los 3: `Cola(const Cola&)`, `operator=`, `~Cola()`.
 
-### 3.2 `ColaPrioridad` (`include/colas/ColaPrioridad.h` / `src/colas/ColaPrioridad.cpp`) — *Concreta (Min-Heap)*
+### 3.2 `ColaPrioridad` (`src/estructuras/ColaPrioridad.h` / `src/estructuras/ColaPrioridad.cpp`) — *Concreta (Min-Heap)*
 Usada por **Prim** (prioridad = costo de arista) y disponible para **Dijkstra** (prioridad = costo o tiempo acumulado).
 
 - **Elemento del heap:**
@@ -100,7 +100,7 @@ Usada por **Prim** (prioridad = costo de arista) y disponible para **Dijkstra** 
   - `limpiar()` — $O(1)$ (lógico) / `~ColaPrioridad()` — $O(1)$ (`delete[] datos`).
   - Regla de los 3: copia profunda del arreglo `datos`.
 
-### 3.3 `ConjuntoDisjunto` (`include/conjuntos/ConjuntoDisjunto.h` / `src/conjuntos/ConjuntoDisjunto.cpp`) — *Concreta (Union-Find)*
+### 3.3 `ConjuntoDisjunto` (`src/estructuras/ConjuntoDisjunto.h` / `src/estructuras/ConjuntoDisjunto.cpp`) — *Concreta (Union-Find)*
 Usada por **Kruskal** para detectar ciclos entre los índices `0..n-1` de ciudades (basada en `representante[]` y `encontrar()` de `video7_mst.cpp`).
 
 - **Atributos privados:**
@@ -115,7 +115,7 @@ Usada por **Kruskal** para detectar ciclos entre los índices `0..n-1` de ciudad
   - `reiniciar(int n)` — $O(n)$.
   - Regla de los 3 (`ConjuntoDisjunto(const ConjuntoDisjunto&)`, `operator=`, `~ConjuntoDisjunto()`).
 
-### 3.4 `Ordenamiento` (`include/ordenamiento/Ordenamiento.h` / `src/ordenamiento/Ordenamiento.cpp`) — *Concreta (MergeSort)*
+### 3.4 `Ordenamiento` (`src/estructuras/Ordenamiento.h` / `src/estructuras/Ordenamiento.cpp`) — *Concreta (MergeSort)*
 Reemplaza `std::sort` / `stable_sort` en **Kruskal** (donde `video7_mst.cpp` ordenaba las aristas por peso ascendente).
 
 - **Elemento ordenable:**
@@ -134,7 +134,7 @@ Reemplaza `std::sort` / `stable_sort` en **Kruskal** (donde `video7_mst.cpp` ord
 
 ## 4. Sprint 1 — Formato `;` y archivos iniciales en `data/`
 
-Todos los archivos usan `;` como delimitador y una entidad por línea. Las coordenadas de `ciudades.txt` deben ubicarse dentro del lienzo del grafo en SFML (`x` en `430..1110`, `y` en `120..465`, acorde al panel `365..1185 x 70..510` de `AplicacionVisual.cpp`).
+Todos los archivos usan `;` como delimitador y una entidad por línea. Las coordenadas de `ciudades.txt` deben ubicarse dentro del lienzo del grafo en SFML (`x` en `340..1120`, `y` en `110..480`, acorde al lienzo `275..1200 x 52..595` de `src/visual/AplicacionVisual.cpp`).
 
 | Archivo | Columnas y tipos | Notas |
 | :--- | :--- | :--- |
@@ -149,7 +149,7 @@ Todos los archivos usan `;` como delimitador y una entidad por línea. Las coord
 
 ## 5. Sprint 2 y 3 — Conexión con árboles, MST y visualizadores SFML
 
-### 5.1 `ArbolABB` (`include/arboles/ArbolABB.h` / `src/arboles/ArbolABB.cpp`) — *Concreto*
+### 5.1 `ArbolABB` (`src/arboles/ArbolABB.h` / `src/arboles/ArbolABB.cpp`) — *Concreto*
 Almacena las ciudades visitadas/registradas para verificar si una ciudad pertenece a las rutas de la aerolínea y desplegar el árbol completo.
 
 - **Nodo:**
@@ -165,7 +165,7 @@ Almacena las ciudades visitadas/registradas para verificar si una ciudad pertene
 - **Clave de comparación:** `nombre` (orden lexicográfico).
 - **Operaciones:** `insertar`, `buscarPorNombre`, `eliminar` (3 casos con sucesor inorden de `Arboles.pdf`), recorridos (`preorden`, `inorden`, `postorden`), `obtenerRaiz()` para volcar hacia `VisualizadorArbol` (`etiqueta = codigo`, `subtexto = nombre`), y liberación recursiva en `~ArbolABB()`.
 
-### 5.2 `ArbolAVL` (`include/arboles/ArbolAVL.h` / `src/arboles/ArbolAVL.cpp`) — *Concreto (Opción A)*
+### 5.2 `ArbolAVL` (`src/arboles/ArbolAVL.h` / `src/arboles/ArbolAVL.cpp`) — *Concreto (Opción A)*
 Almacena los pasajeros indexados por `dato.id` para consultar en $O(\log n)$ si un pasajero existe y en qué vuelos está asignado, manteniendo despliegue total del árbol.
 
 - **Nodo (convención exacta de `Arboles.pdf`):**
@@ -184,7 +184,7 @@ Almacena los pasajeros indexados por `dato.id` para consultar en $O(\log n)$ si 
 - **Comportamiento en inserción (Opción A):** si `id` ya existe en un nodo, llama a `nodo->dato.agregarVuelo(nuevoVuelo)` sin insertar un nodo duplicado.
 - **Conexión visual:** `VisualizadorArbol` muestra `etiqueta = dato.id` y `subtexto = dato.obtenerVuelosTexto() + " h=" + altura`.
 
-### 5.3 `ArbolMST` (`include/arboles/ArbolMST.h` / `src/arboles/ArbolMST.cpp`) — *Concreto (Árbol General)*
+### 5.3 `ArbolMST` (`src/arboles/ArbolMST.h` / `src/arboles/ArbolMST.cpp`) — *Concreto (Árbol General)*
 Representa el árbol de expansión mínima generado por **Prim** (costo) o **Kruskal** (duración) mediante `primerHijo` / `siguienteHermano` (`Arboles.pdf`, pág. 4).
 
 - **Nodo:**
@@ -203,7 +203,7 @@ Representa el árbol de expansión mínima generado por **Prim** (costo) o **Kru
   - Recorridos requeridos por el enunciado: `preorden`, `inorden` y `postorden` (devolviendo cadenas formateadas para el panel informativo de `AplicacionVisual`).
   - Destructor recursivo (`primerHijo` y `siguienteHermano`).
 
-### 5.4 `Prim` y `Kruskal` (`include/grafo/algoritmos/`)
+### 5.4 `Prim` y `Kruskal` (`src/estructuras/`)
 - **`Prim`:** parte de un vértice origen y usa `ColaPrioridad` (`ElementoHeap`) + arreglo `enArbol[]`, `clave[]`, `padre[]` eligiendo aristas por **costo** — $O((V + E)\log V)$.
 - **`Kruskal`:** recolecta aristas en un arreglo dinámico `AristaOrdenable*`, las ordena por **duración** con `Ordenamiento::ordenarAristas` y usa `ConjuntoDisjunto` para evitar ciclos hasta completar $V - 1$ aristas (o agotar componentes) — $O(E \log E)$.
 - **Salida hacia UI:** ambos generan un `ArbolMST` (para mostrar los 3 recorridos y costo/tiempo total) y envían las aristas seleccionadas a `VisualizadorGrafo::resaltarAristaMST(origen, destino)`.

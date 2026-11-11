@@ -4,7 +4,7 @@
     {
       "label": "Compilar (estilo ZinjaI)",
       "type": "shell",
-      "command": "mkdir -p Debug_Linux && g++ -std=c++17 -g -Iinclude $(find src -name '*.cpp') -o Debug_Linux/Proyecto_Rutas.bin -lsfml-graphics -lsfml-audio -lsfml-network -lsfml-window -lsfml-system",
+      "command": "mkdir -p Debug_Linux && g++ -std=c++17 -g -Isrc $(find src -name '*.cpp') -o Debug_Linux/Proyecto_Rutas.bin -lsfml-graphics -lsfml-audio -lsfml-network -lsfml-window -lsfml-system",
       "options": {
         "cwd": "${workspaceFolder}"
       },

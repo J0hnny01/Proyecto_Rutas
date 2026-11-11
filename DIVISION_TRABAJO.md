@@ -9,7 +9,7 @@ Plan de reparto equitativo para desarrollar el proyecto en paralelo con **cero c
 1. **Fuente primaria de diseño:** Seguir las estructuras y convenciones del material de clase en `Anti-estructuras` (`Grafos.pdf`, `Arboles.pdf`, `programas/video3_listas.cpp` a `video7_mst.cpp`).
 2. **Prohibición estricta de STL (nota `0` si se incumple):** No usar `std::stack`, `std::queue`, `std::deque`, `std::list`, `std::priority_queue` ni `std::sort`. Todo va con punteros y memoria dinámica propia.
 3. **Norma de código del proyecto:** No colocar comentarios (`//` ni `/* ... */`) en ningún archivo `.h` o `.cpp`.
-4. **Plantillas (`template <typename T>`):** `ListaEnlazada.h`, `Pila.h`, `Cola.h` y `ColaPrioridad.h` se implementan completos dentro de su `.h` en `include/` (sin `.cpp` aparte).
+4. **Plantillas (`template <typename T>`):** únicamente `ListaEnlazada.h` y `Cola.h` (que se usan con múltiples tipos) se implementan completos dentro de su `.h` en `src/estructuras/`. Todo lo demás lleva clases concretas en `.h` + `.cpp` en la misma carpeta (`src/estructuras/`, `src/arboles/`, `src/modelos/`, `src/sistema/`, `src/visual/`).
 5. **Compilación dual:** Mantener compatible con **Code OSS / g++** (`.vscode/tasks.json`) y **ZinjaI** (`Proyecto_Rutas.zpr`).
 
 ---
@@ -20,11 +20,11 @@ Plan de reparto equitativo para desarrollar el proyecto en paralelo con **cero c
 
 | Categoría | Archivos asignados | Puntos / Responsabilidad |
 | :--- | :--- | :--- |
-| **TADs base** | `include/listas/ListaEnlazada.h`<br>`include/pilas/Pila.h` | TADs lineales propios (lista usada como adyacencia y listas generales; pila para reconstruir rutas) |
-| **Modelos de vuelos** | `include/modelos/Ciudad.h` / `src/modelos/Ciudad.cpp`<br>`include/modelos/Ruta.h` / `src/modelos/Ruta.cpp`<br>`include/modelos/Equipaje.h` / `src/modelos/Equipaje.cpp`<br>`include/modelos/Vuelo.h` / `src/modelos/Vuelo.cpp` | Entidades ligadas directamente al grafo, rutas, equipaje y vuelos |
-| **Grafo principal** | `include/grafo/ResultadosGrafo.h`<br>`include/grafo/GrafoVuelos.h` / `src/grafo/GrafoVuelos.cpp` | Grafo dirigido ponderado por Lista de Adyacencia (**10 pts**) |
-| **Caminos mínimos** | `include/grafo/algoritmos/Dijkstra.h` / `src/grafo/algoritmos/Dijkstra.cpp`<br>`include/grafo/algoritmos/BellmanFord.h` / `src/grafo/algoritmos/BellmanFord.cpp` | Dijkstra costo/tiempo (**10 pts**) + ruta económica de maleta (**5 pts**) + Bellman-Ford (**8 pts**) |
-| **Sistema y SFML** | Métodos cliente/equipaje en `SistemaAerolinea`<br>Acciones del **Módulo del Cliente** y animaciones de ruta/equipaje en `src/visuales/AplicacionVisual.cpp` | Módulo Cliente (**7 pts**) + animación de vuelos/maletas en SFML |
+| **TADs base** | `src/estructuras/ListaEnlazada.h`<br>`src/estructuras/Pila.h` / `.cpp` | TADs lineales propios (lista usada como adyacencia y listas generales; pila concreta de `int` para reconstruir rutas) |
+| **Modelos de vuelos** | `src/modelos/Ciudad.h` / `.cpp`<br>`src/modelos/Ruta.h` / `.cpp`<br>`src/modelos/Equipaje.h` / `.cpp`<br>`src/modelos/Vuelo.h` / `.cpp` | Entidades ligadas directamente al grafo, rutas, equipaje y vuelos |
+| **Grafo principal** | `src/estructuras/ResultadosGrafo.h` / `.cpp`<br>`src/estructuras/GrafoVuelos.h` / `.cpp` | Grafo dirigido ponderado por Lista de Adyacencia (**10 pts**) |
+| **Caminos mínimos** | `src/estructuras/Dijkstra.h` / `.cpp`<br>`src/estructuras/BellmanFord.h` / `.cpp` | Dijkstra costo/tiempo (**10 pts**) + ruta económica de maleta (**5 pts**) + Bellman-Ford (**8 pts**) |
+| **Sistema y SFML** | Métodos cliente/equipaje en `src/sistema/SistemaAerolinea.h` / `.cpp`<br>Acciones del **Módulo del Cliente** y animaciones de ruta/equipaje en `src/visual/AplicacionVisual.cpp` | Módulo Cliente (**7 pts**) + animación de vuelos/maletas en SFML |
 | **Documentación** | `README.md` + sección del informe técnico sobre Grafo, Dijkstra, Bellman-Ford y diagrama general | Parte de Apartado A (**15 pts** compartidos) |
 
 ---
@@ -33,11 +33,11 @@ Plan de reparto equitativo para desarrollar el proyecto en paralelo con **cero c
 
 | Categoría | Archivos asignados | Puntos / Responsabilidad |
 | :--- | :--- | :--- |
-| **TADs base y orden** | `include/colas/Cola.h`<br>`include/colas/ColaPrioridad.h`<br>`include/conjuntos/ConjuntoDisjunto.h` / `src/conjuntos/ConjuntoDisjunto.cpp`<br>`include/ordenamiento/Ordenamiento.h` / `src/ordenamiento/Ordenamiento.cpp` | Colas, Min-Heap propio, Union-Find (`representante[]` / `encontrar`) y ordenamiento propio (sin `std::sort`) |
-| **Modelos y archivos** | `include/modelos/Aeronave.h` / `src/modelos/Aeronave.cpp`<br>`include/modelos/Tripulante.h` / `src/modelos/Tripulante.cpp`<br>`include/modelos/Pasajero.h` / `src/modelos/Pasajero.cpp`<br>`include/persistencia/GestorArchivos.h` / `src/persistencia/GestorArchivos.cpp`<br>Archivos iniciales `.txt` en `data/` | Flota, tripulación, pasajeros y persistencia en texto plano |
-| **Árboles y recorridos** | `include/arboles/ArbolABB.h` / `src/arboles/ArbolABB.cpp`<br>`include/arboles/ArbolAVL.h` / `src/arboles/ArbolAVL.cpp`<br>`include/arboles/ArbolMST.h` / `src/arboles/ArbolMST.cpp` | ABB de ciudades (**6 pts**), AVL de pasajeros con rotaciones (**9 pts**) y árbol general `ArbolMST` (`primerHijo`/`siguienteHermano`) + recorridos |
-| **Árboles de expansión (MST)** | `include/grafo/algoritmos/Prim.h` / `src/grafo/algoritmos/Prim.cpp`<br>`include/grafo/algoritmos/Kruskal.h` / `src/grafo/algoritmos/Kruskal.cpp` | Prim por costo (**6 pts**) y Kruskal por duración (**6 pts**) |
-| **Sistema y SFML** | Métodos administrativos en `SistemaAerolinea`<br>Acciones del **Módulo Administrativo** y volcado de ABB/AVL/MST al visualizador en `src/visuales/AplicacionVisual.cpp` | Módulo Administrativo (**10 pts**) + visualización de árboles en SFML |
+| **TADs base y orden** | `src/estructuras/Cola.h`<br>`src/estructuras/ColaPrioridad.h` / `.cpp`<br>`src/estructuras/ConjuntoDisjunto.h` / `.cpp`<br>`src/estructuras/Ordenamiento.h` / `.cpp` | Cola genérica, Min-Heap concreto, Union-Find (`representante[]` / `encontrar`) y ordenamiento propio (sin `std::sort`) |
+| **Modelos y archivos** | `src/modelos/Aeronave.h` / `.cpp`<br>`src/modelos/Tripulante.h` / `.cpp`<br>`src/modelos/Pasajero.h` / `.cpp`<br>`src/sistema/GestorArchivos.h` / `.cpp`<br>Archivos iniciales `.txt` en `data/` | Flota, tripulación, pasajeros y persistencia en texto plano |
+| **Árboles y recorridos** | `src/arboles/ArbolABB.h` / `.cpp`<br>`src/arboles/ArbolAVL.h` / `.cpp`<br>`src/arboles/ArbolMST.h` / `.cpp` | ABB de ciudades (**6 pts**), AVL de pasajeros con rotaciones (**9 pts**) y árbol general `ArbolMST` (`primerHijo`/`siguienteHermano`) + recorridos |
+| **Árboles de expansión (MST)** | `src/estructuras/Prim.h` / `.cpp`<br>`src/estructuras/Kruskal.h` / `.cpp` | Prim por costo (**6 pts**) y Kruskal por duración (**6 pts**) |
+| **Sistema y SFML** | Métodos administrativos en `src/sistema/SistemaAerolinea.h` / `.cpp`<br>Acciones del **Módulo Administrativo** y volcado de ABB/AVL/MST al visualizador en `src/visual/AplicacionVisual.cpp` | Módulo Administrativo (**10 pts**) + visualización de árboles en SFML |
 | **Documentación y entrega** | Sección del informe técnico sobre ABB, AVL, Prim, Kruskal y TADs + prueba completa en **ZinjaI** + paquete `.zip` final | Parte de Apartado A (**15 pts** compartidos) |
 
 ---

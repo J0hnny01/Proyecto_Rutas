@@ -1,4 +1,4 @@
-#include "visuales/AplicacionVisual.h"
+#include "visual/AplicacionVisual.h"
 
 int main() {
     AplicacionVisual app;
