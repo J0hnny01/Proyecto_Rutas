@@ -79,40 +79,45 @@ Usada para recorridos por niveles en `ArbolABB` (`NodoABB*`), `ArbolAVL` (`NodoA
   - `limpiar()` — $O(n)$
   - Regla de los 3: `Cola(const Cola&)`, `operator=`, `~Cola()`.
 
-### 3.2 `ColaPrioridad` (`src/estructuras/ColaPrioridad.h` / `src/estructuras/ColaPrioridad.cpp`) — *Concreta (Min-Heap)*
+### 3.2 `ColaPrioridad` (`src/estructuras/ColaPrioridad.h` / `src/estructuras/ColaPrioridad.cpp`) — *Concreta (Lista enlazada ordenada)*
 Usada por **Prim** (prioridad = costo de arista) y disponible para **Dijkstra** (prioridad = costo o tiempo acumulado).
 
-- **Elemento del heap:**
+- **Elemento:**
   ```cpp
-  struct ElementoHeap {
+  struct ElementoPrioridad {
       int vertice;
       int prioridad;
   };
   ```
+- **Nodo interno:**
+  ```cpp
+  struct NodoPrioridad {
+      ElementoPrioridad dato;
+      NodoPrioridad* siguiente;
+  };
+  ```
 - **Atributos privados:**
-  - `ElementoHeap* datos;`
+  - `NodoPrioridad* frente;`
   - `int cantidad;`
-  - `int capacidad;`
 - **Métodos y complejidad:**
-  - `insertar(int vertice, int prioridad)` — $O(\log n)$ amortizado (usa `subir(int)` y `redimensionar()`).
-  - `extraerMinimo()` — $O(\log n)$ (retorna el `ElementoHeap` con menor `prioridad` y reordena con `bajar(0)`).
+  - `insertar(int vertice, int prioridad)` — $O(n)$ (inserta ordenado de menor a mayor `prioridad`; empates mantienen orden FIFO).
+  - `extraerMinimo()` — $O(1)$ (saca `frente` y libera el nodo).
   - `verMinimo() const`, `estaVacia() const`, `tamano() const` — $O(1)$
-  - `limpiar()` — $O(1)$ (lógico) / `~ColaPrioridad()` — $O(1)$ (`delete[] datos`).
-  - Regla de los 3: copia profunda del arreglo `datos`.
+  - `limpiar()` — $O(n)$ (libera todos los nodos).
+  - Regla de los 3: copia profunda en $O(n)$ con `copiarDesde`.
 
 ### 3.3 `ConjuntoDisjunto` (`src/estructuras/ConjuntoDisjunto.h` / `src/estructuras/ConjuntoDisjunto.cpp`) — *Concreta (Union-Find)*
 Usada por **Kruskal** para detectar ciclos entre los índices `0..n-1` de ciudades (basada en `representante[]` y `encontrar()` de `video7_mst.cpp`).
 
 - **Atributos privados:**
   - `int* representante;`
-  - `int* rango;`
   - `int tamano;`
 - **Métodos y complejidad:**
-  - `ConjuntoDisjunto(int n)`: inicializa `representante[i] = i` y `rango[i] = 0` — $O(n)$.
-  - `encontrar(int x)`: busca la raíz aplicando compresión de caminos — $O(\alpha(n))$.
-  - `unir(int a, int b)`: une dos conjuntos distintos por rango; retorna `false` si ya estaban en el mismo conjunto (formarían ciclo) — $O(\alpha(n))$.
-  - `mismoConjunto(int a, int b)` — $O(\alpha(n))$.
-  - `reiniciar(int n)` — $O(n)$.
+  - `ConjuntoDisjunto(int n)`: inicializa `representante[i] = i` — $O(n)$.
+  - `encontrar(int x) const`: sube iterativamente por `representante[x]` hasta la raíz (estilo `video7_mst.cpp`); retorna `-1` si está fuera de rango — $O(h)$ (en peor caso $O(n)$).
+  - `unir(int a, int b)`: si ambos tienen distinta raíz, hace `representante[ra] = rb`; retorna `false` si formarían ciclo o hay índice inválido — $O(h)$.
+  - `mismoConjunto(int a, int b) const` — $O(h)$.
+  - `reiniciar(int n)`, `obtenerTamano() const` — $O(n)$ / $O(1)$.
   - Regla de los 3 (`ConjuntoDisjunto(const ConjuntoDisjunto&)`, `operator=`, `~ConjuntoDisjunto()`).
 
 ### 3.4 `Ordenamiento` (`src/estructuras/Ordenamiento.h` / `src/estructuras/Ordenamiento.cpp`) — *Concreta (MergeSort)*
