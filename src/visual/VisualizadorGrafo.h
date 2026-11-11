@@ -4,9 +4,11 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 
+using namespace std;
+
 struct CiudadVisual {
-    std::string codigo;
-    std::string nombre;
+    string codigo;
+    string nombre;
     float x;
     float y;
 };
@@ -54,13 +56,13 @@ private:
     void dibujarAristaIndividual(sf::RenderWindow& ventana, const sf::Font& fuente, const AristaVisual& arista) const;
     void dibujarMarcador(sf::RenderWindow& ventana, const sf::Font& fuente,
                          const TrayectoriaAnimada& trayectoria, sf::Color color,
-                         const std::string& etiqueta, float desplazamientoY) const;
+                         const string& etiqueta, float desplazamientoY) const;
 
 public:
     VisualizadorGrafo();
 
     void limpiar();
-    int agregarCiudad(const std::string& codigo, const std::string& nombre, float x, float y);
+    int agregarCiudad(const string& codigo, const string& nombre, float x, float y);
     void agregarArista(int origen, int destino, int costo, int tiempo);
 
     void limpiarResaltados();

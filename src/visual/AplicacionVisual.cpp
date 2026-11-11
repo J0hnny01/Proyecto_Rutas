@@ -50,7 +50,7 @@ void AplicacionVisual::inicializarInterfaz() {
     limpiarLineasResultado("Resultados");
 }
 
-void AplicacionVisual::limpiarLineasResultado(const std::string& nuevoTitulo) {
+void AplicacionVisual::limpiarLineasResultado(const string& nuevoTitulo) {
     tituloResultado = nuevoTitulo;
     for (int i = 0; i < MAX_LINEAS_INFO; ++i) {
         lineasResultado[i] = "";
@@ -59,7 +59,7 @@ void AplicacionVisual::limpiarLineasResultado(const std::string& nuevoTitulo) {
 
 void AplicacionVisual::procesarEventos() {
 #if SFML_VERSION_MAJOR >= 3
-    while (const std::optional<sf::Event> evento = ventana.pollEvent()) {
+    while (const optional<sf::Event> evento = ventana.pollEvent()) {
         if (evento->is<sf::Event::Closed>()) {
             ventana.close();
         } else if (const auto* botonMouse = evento->getIf<sf::Event::MouseButtonPressed>()) {
@@ -257,8 +257,8 @@ void AplicacionVisual::renderizar() {
     btnTabCliente.renderizar(ventana, fuente);
     btnTabAdmin.renderizar(ventana, fuente);
 
-    std::string txtOrigen = "-";
-    std::string txtDestino = "-";
+    string txtOrigen = "-";
+    string txtDestino = "-";
     if (grafoVisual.getTotalCiudades() > 0 && grafoVisual.getCiudadOrigen() >= 0) {
         txtOrigen = grafoVisual.getCiudad(grafoVisual.getCiudadOrigen()).codigo;
     }
@@ -279,7 +279,7 @@ void AplicacionVisual::renderizar() {
     sepMenu.setFillColor(sf::Color(46, 51, 60));
     ventana.draw(sepMenu);
 
-    std::string subtitulo = (moduloActual == ModuloActivo::Cliente) ? "Cliente" : "Administrativo";
+    string subtitulo = (moduloActual == ModuloActivo::Cliente) ? "Cliente" : "Administrativo";
     CompatSFML::dibujarTexto(ventana, fuente, subtitulo, 20.0f, 154.0f, 12, sf::Color(145, 153, 168));
 
     if (moduloActual == ModuloActivo::Cliente) {

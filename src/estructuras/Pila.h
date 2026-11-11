@@ -8,7 +8,7 @@ private:
         NodoPila* siguiente;
     };
 
-    NodoPila* tope;
+    NodoPila* cima;
     int cantidad;
 
     void copiarDesde(const Pila& otra);

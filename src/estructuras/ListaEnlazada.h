@@ -3,6 +3,8 @@
 
 #include <stdexcept>
 
+using namespace std;
+
 template <typename T>
 class ListaEnlazada {
 public:
@@ -52,7 +54,7 @@ void ListaEnlazada<T>::copiarDesde(const ListaEnlazada<T>& otra) {
 template <typename T>
 typename ListaEnlazada<T>::NodoLista* ListaEnlazada<T>::obtenerNodo(int indice) const {
     if (indice < 0 || indice >= cantidad) {
-        throw std::out_of_range("Indice fuera de rango");
+        throw out_of_range("Indice fuera de rango");
     }
     NodoLista* actual = cabeza;
     for (int i = 0; i < indice; i++) {

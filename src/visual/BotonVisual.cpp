@@ -6,7 +6,7 @@ BotonVisual::BotonVisual() : activo(false), textoCentrado(false), tamanoTexto(14
     colorActivo = sf::Color(52, 114, 206);
 }
 
-void BotonVisual::configurar(float x, float y, float ancho, float alto, const std::string& texto,
+void BotonVisual::configurar(float x, float y, float ancho, float alto, const string& texto,
                              bool centrarTexto, unsigned int tamanoLetra) {
     etiqueta = texto;
     activo = false;
@@ -36,7 +36,7 @@ bool BotonVisual::estaActivo() const {
     return activo;
 }
 
-void BotonVisual::setTexto(const std::string& nuevoTexto) {
+void BotonVisual::setTexto(const string& nuevoTexto) {
     etiqueta = nuevoTexto;
 }
 

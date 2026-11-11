@@ -5,7 +5,7 @@ VisualizadorArbol::VisualizadorArbol()
     : totalNodos(0), raizIdx(-1), esArbolGeneral(false), tituloArbol("Arbol") {
 }
 
-void VisualizadorArbol::limpiar(const std::string& titulo) {
+void VisualizadorArbol::limpiar(const string& titulo) {
     totalNodos = 0;
     raizIdx = -1;
     esArbolGeneral = false;
@@ -15,7 +15,7 @@ void VisualizadorArbol::limpiar(const std::string& titulo) {
     strPostorden = "";
 }
 
-int VisualizadorArbol::agregarNodo(const std::string& etiqueta, const std::string& subtexto,
+int VisualizadorArbol::agregarNodo(const string& etiqueta, const string& subtexto,
                                    int izq, int der, bool resaltado) {
     if (totalNodos >= MAX_NODOS) return -1;
     nodos[totalNodos].etiqueta = etiqueta;
@@ -28,7 +28,7 @@ int VisualizadorArbol::agregarNodo(const std::string& etiqueta, const std::strin
     return totalNodos++;
 }
 
-int VisualizadorArbol::agregarNodoGeneral(const std::string& etiqueta, const std::string& subtexto, bool resaltado) {
+int VisualizadorArbol::agregarNodoGeneral(const string& etiqueta, const string& subtexto, bool resaltado) {
     esArbolGeneral = true;
     return agregarNodo(etiqueta, subtexto, -1, -1, resaltado);
 }
@@ -51,7 +51,7 @@ void VisualizadorArbol::setRaiz(int idx) {
     raizIdx = idx;
 }
 
-void VisualizadorArbol::setRecorridos(const std::string& pre, const std::string& in, const std::string& post) {
+void VisualizadorArbol::setRecorridos(const string& pre, const string& in, const string& post) {
     strPreorden = pre;
     strInorden = in;
     strPostorden = post;

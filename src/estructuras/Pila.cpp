@@ -2,15 +2,17 @@
 
 #include <stdexcept>
 
+using namespace std;
+
 void Pila::copiarDesde(const Pila& otra) {
-    NodoPila* actual = otra.tope;
+    NodoPila* actual = otra.cima;
     NodoPila* ultimo = nullptr;
     while (actual != nullptr) {
         NodoPila* nuevo = new NodoPila;
         nuevo->dato = actual->dato;
         nuevo->siguiente = nullptr;
-        if (tope == nullptr) {
-            tope = nuevo;
+        if (cima == nullptr) {
+            cima = nuevo;
         } else {
             ultimo->siguiente = nuevo;
         }
@@ -20,10 +22,10 @@ void Pila::copiarDesde(const Pila& otra) {
     }
 }
 
-Pila::Pila() : tope(nullptr), cantidad(0) {
+Pila::Pila() : cima(nullptr), cantidad(0) {
 }
 
-Pila::Pila(const Pila& otra) : tope(nullptr), cantidad(0) {
+Pila::Pila(const Pila& otra) : cima(nullptr), cantidad(0) {
     copiarDesde(otra);
 }
 
@@ -42,33 +44,33 @@ Pila::~Pila() {
 void Pila::apilar(int dato) {
     NodoPila* nuevo = new NodoPila;
     nuevo->dato = dato;
-    nuevo->siguiente = tope;
-    tope = nuevo;
+    nuevo->siguiente = cima;
+    cima = nuevo;
     cantidad++;
 }
 
 bool Pila::desapilar() {
-    if (tope == nullptr) {
+    if (cima == nullptr) {
         return false;
     }
-    NodoPila* borrar = tope;
-    tope = tope->siguiente;
+    NodoPila* borrar = cima;
+    cima = cima->siguiente;
     delete borrar;
     cantidad--;
     return true;
 }
 
 void Pila::limpiar() {
-    while (tope != nullptr) {
+    while (cima != nullptr) {
         desapilar();
     }
 }
 
 int Pila::verTope() const {
-    if (tope == nullptr) {
-        throw std::out_of_range("Pila vacia");
+    if (cima == nullptr) {
+        throw out_of_range("Pila vacia");
     }
-    return tope->dato;
+    return cima->dato;
 }
 
 int Pila::tamano() const {

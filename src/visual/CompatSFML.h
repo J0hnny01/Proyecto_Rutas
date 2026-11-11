@@ -6,6 +6,8 @@
 #include <cmath>
 #include <string>
 
+using namespace std;
+
 namespace CompatSFML {
 
     inline sf::VideoMode crearVideoMode(unsigned int ancho, unsigned int alto) {
@@ -16,7 +18,7 @@ namespace CompatSFML {
     #endif
     }
 
-    inline bool cargarFuente(sf::Font& fuente, const std::string& ruta) {
+    inline bool cargarFuente(sf::Font& fuente, const string& ruta) {
     #if SFML_VERSION_MAJOR >= 3
         return fuente.openFromFile(ruta);
     #else
@@ -24,7 +26,7 @@ namespace CompatSFML {
     #endif
     }
 
-    inline sf::Text crearTexto(const sf::Font& fuente, const std::string& contenido, unsigned int tamano, sf::Color color = sf::Color::White) {
+    inline sf::Text crearTexto(const sf::Font& fuente, const string& contenido, unsigned int tamano, sf::Color color = sf::Color::White) {
     #if SFML_VERSION_MAJOR >= 3
         sf::Text txt(fuente, contenido, tamano);
     #else
@@ -34,7 +36,7 @@ namespace CompatSFML {
         return txt;
     }
 
-    inline void dibujarTexto(sf::RenderWindow& ventana, const sf::Font& fuente, const std::string& contenido,
+    inline void dibujarTexto(sf::RenderWindow& ventana, const sf::Font& fuente, const string& contenido,
                              float x, float y, unsigned int tamano = 14, sf::Color color = sf::Color::White) {
         sf::Text txt = crearTexto(fuente, contenido, tamano, color);
         txt.setPosition(sf::Vector2f(x, y));
@@ -45,7 +47,7 @@ namespace CompatSFML {
         return txt.getLocalBounds();
     }
 
-    inline void dibujarTextoCentrado(sf::RenderWindow& ventana, const sf::Font& fuente, const std::string& contenido,
+    inline void dibujarTextoCentrado(sf::RenderWindow& ventana, const sf::Font& fuente, const string& contenido,
                                      float cx, float cy, unsigned int tamano = 14, sf::Color color = sf::Color::White) {
         sf::Text txt = crearTexto(fuente, contenido, tamano, color);
         sf::FloatRect bounds = obtenerLimitesTexto(txt);
@@ -63,10 +65,10 @@ namespace CompatSFML {
     inline void dibujarLinea(sf::RenderWindow& ventana, sf::Vector2f inicio, sf::Vector2f fin,
                              sf::Color color = sf::Color::White, float grosor = 1.5f) {
         sf::Vector2f delta = fin - inicio;
-        float longitud = std::sqrt(delta.x * delta.x + delta.y * delta.y);
+        float longitud = sqrt(delta.x * delta.x + delta.y * delta.y);
         if (longitud <= 0.001f) return;
 
-        float anguloGrados = std::atan2(delta.y, delta.x) * 180.0f / 3.14159265f;
+        float anguloGrados = atan2(delta.y, delta.x) * 180.0f / 3.14159265f;
 
         sf::RectangleShape linea(sf::Vector2f(longitud, grosor));
         linea.setOrigin(sf::Vector2f(0.0f, grosor / 2.0f));
@@ -84,7 +86,7 @@ namespace CompatSFML {
     inline void dibujarFlecha(sf::RenderWindow& ventana, sf::Vector2f inicio, sf::Vector2f fin,
                               sf::Color color, float grosor, float recorteDestino = 0.0f) {
         sf::Vector2f delta = fin - inicio;
-        float longitud = std::sqrt(delta.x * delta.x + delta.y * delta.y);
+        float longitud = sqrt(delta.x * delta.x + delta.y * delta.y);
         if (longitud <= recorteDestino + 6.0f) return;
 
         sf::Vector2f dir(delta.x / longitud, delta.y / longitud);

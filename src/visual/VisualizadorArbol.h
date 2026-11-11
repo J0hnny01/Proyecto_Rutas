@@ -4,9 +4,11 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 
+using namespace std;
+
 struct NodoArbolVisual {
-    std::string etiqueta;
-    std::string subtexto;
+    string etiqueta;
+    string subtexto;
     int izq;
     int der;
     int primerHijo;
@@ -22,10 +24,10 @@ private:
     int raizIdx;
     bool esArbolGeneral;
 
-    std::string tituloArbol;
-    std::string strPreorden;
-    std::string strInorden;
-    std::string strPostorden;
+    string tituloArbol;
+    string strPreorden;
+    string strInorden;
+    string strPostorden;
 
     int contarHojasGeneral(int idx) const;
     void dibujarBinario(sf::RenderWindow& ventana, const sf::Font& fuente,
@@ -38,14 +40,14 @@ private:
 public:
     VisualizadorArbol();
 
-    void limpiar(const std::string& titulo = "Arbol");
-    int agregarNodo(const std::string& etiqueta, const std::string& subtexto = "",
+    void limpiar(const string& titulo = "Arbol");
+    int agregarNodo(const string& etiqueta, const string& subtexto = "",
                     int izq = -1, int der = -1, bool resaltado = false);
-    int agregarNodoGeneral(const std::string& etiqueta, const std::string& subtexto = "",
+    int agregarNodoGeneral(const string& etiqueta, const string& subtexto = "",
                            bool resaltado = false);
     void enlazarHijo(int padreIdx, int hijoIdx);
     void setRaiz(int idx);
-    void setRecorridos(const std::string& pre, const std::string& in, const std::string& post);
+    void setRecorridos(const string& pre, const string& in, const string& post);
 
     void renderizar(sf::RenderWindow& ventana, const sf::Font& fuente) const;
 };

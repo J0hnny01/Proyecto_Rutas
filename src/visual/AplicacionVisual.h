@@ -7,6 +7,8 @@
 #include "VisualizadorGrafo.h"
 #include "VisualizadorArbol.h"
 
+using namespace std;
+
 enum class ModuloActivo {
     Cliente,
     Administrativo
@@ -42,8 +44,8 @@ private:
     BotonVisual botonesAdmin[TOTAL_BOTONES_ACCION];
 
     static const int MAX_LINEAS_INFO = 4;
-    std::string tituloResultado;
-    std::string lineasResultado[MAX_LINEAS_INFO];
+    string tituloResultado;
+    string lineasResultado[MAX_LINEAS_INFO];
 
     void inicializarInterfaz();
     void procesarEventos();
@@ -52,7 +54,7 @@ private:
 
     void ejecutarAccionCliente(int indiceAccion);
     void ejecutarAccionAdmin(int indiceAccion);
-    void limpiarLineasResultado(const std::string& nuevoTitulo);
+    void limpiarLineasResultado(const string& nuevoTitulo);
 
     void renderizar();
 

@@ -23,7 +23,7 @@ void VisualizadorGrafo::limpiar() {
     limpiarResaltados();
 }
 
-int VisualizadorGrafo::agregarCiudad(const std::string& codigo, const std::string& nombre, float x, float y) {
+int VisualizadorGrafo::agregarCiudad(const string& codigo, const string& nombre, float x, float y) {
     if (totalCiudades >= MAX_CIUDADES) return -1;
     ciudades[totalCiudades].codigo = codigo;
     ciudades[totalCiudades].nombre = nombre;
@@ -151,7 +151,7 @@ bool VisualizadorGrafo::calcularSegmento(int origen, int destino, sf::Vector2f& 
     p1 = sf::Vector2f(ciudades[origen].x, ciudades[origen].y);
     p2 = sf::Vector2f(ciudades[destino].x, ciudades[destino].y);
     sf::Vector2f delta = p2 - p1;
-    float longitud = std::sqrt(delta.x * delta.x + delta.y * delta.y);
+    float longitud = sqrt(delta.x * delta.x + delta.y * delta.y);
     if (longitud <= 0.001f) return false;
 
     if (existeArista(destino, origen)) {
@@ -187,7 +187,7 @@ void VisualizadorGrafo::dibujarAristaIndividual(sf::RenderWindow& ventana, const
 
     float mx = (p1.x + p2.x) * 0.5f;
     float my = (p1.y + p2.y) * 0.5f;
-    std::string etiqueta = "$" + std::to_string(arista.costo) + " - " + std::to_string(arista.tiempo) + "m";
+    string etiqueta = "$" + to_string(arista.costo) + " - " + to_string(arista.tiempo) + "m";
     float anchoPill = static_cast<float>(etiqueta.size()) * 6.5f + 12.0f;
 
     sf::RectangleShape fondoEtiqueta(sf::Vector2f(anchoPill, 16.0f));
@@ -201,7 +201,7 @@ void VisualizadorGrafo::dibujarAristaIndividual(sf::RenderWindow& ventana, const
 
 void VisualizadorGrafo::dibujarMarcador(sf::RenderWindow& ventana, const sf::Font& fuente,
                                         const TrayectoriaAnimada& trayectoria, sf::Color color,
-                                        const std::string& etiqueta, float desplazamientoY) const {
+                                        const string& etiqueta, float desplazamientoY) const {
     if (!trayectoria.activa || trayectoria.longitud < 2) return;
     int u = trayectoria.indices[trayectoria.tramoActual];
     int v = trayectoria.indices[trayectoria.tramoActual + 1];
