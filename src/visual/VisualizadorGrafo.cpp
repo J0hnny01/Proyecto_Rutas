@@ -66,15 +66,17 @@ void VisualizadorGrafo::cargarTrayectoria(TrayectoriaAnimada& trayectoria, const
     trayectoria.activa = true;
 
     for (int i = 0; i < trayectoria.longitud - 1; ++i) {
-        int u = trayectoria.indices[i];
-        int v = trayectoria.indices[i + 1];
-        for (int j = 0; j < totalAristas; ++j) {
-            if (aristas[j].origen == u && aristas[j].destino == v) {
-                if (esMaleta) {
-                    aristas[j].esRutaMaleta = true;
-                } else {
-                    aristas[j].esRutaPasajero = true;
-                }
+        resaltarAristaRuta(trayectoria.indices[i], trayectoria.indices[i + 1], esMaleta);
+    }
+}
+
+void VisualizadorGrafo::resaltarAristaRuta(int origen, int destino, bool esMaleta) {
+    for (int j = 0; j < totalAristas; ++j) {
+        if (aristas[j].origen == origen && aristas[j].destino == destino) {
+            if (esMaleta) {
+                aristas[j].esRutaMaleta = true;
+            } else {
+                aristas[j].esRutaPasajero = true;
             }
         }
     }

@@ -3,9 +3,10 @@
 
 #include <SFML/Graphics.hpp>
 #include <string>
+#include "../sistema/SistemaAerolinea.h"
 #include "BotonVisual.h"
-#include "VisualizadorGrafo.h"
 #include "VisualizadorArbol.h"
+#include "VisualizadorGrafo.h"
 
 using namespace std;
 
@@ -28,8 +29,13 @@ private:
     ModuloActivo moduloActual;
     VistaLienzo vistaActual;
 
+    SistemaAerolinea sistema;
     VisualizadorGrafo grafoVisual;
     VisualizadorArbol arbolVisual;
+
+    bool criterioBellmanCosto;
+    int ultimaAccionCliente;
+    int indicePasajeroActivo;
 
     BotonVisual btnTabCliente;
     BotonVisual btnTabAdmin;
@@ -48,9 +54,23 @@ private:
     string lineasResultado[MAX_LINEAS_INFO];
 
     void inicializarInterfaz();
+    void sincronizarMapaVisual();
     void procesarEventos();
     void manejarClicIzquierdo(float mx, float my);
     void manejarClicDerecho(float mx, float my);
+
+    bool validarOrigenDestino(string& codOrigen, string& codDestino, bool exigirDistintos);
+    void animarIndices(const ListaEnlazada<int>& indicesLista, bool esMaleta);
+    Pasajero obtenerPasajeroActivo(bool& hayPasajeros) const;
+    string truncarTexto(const string& texto, int maxChars) const;
+
+    void mostrarRutaMasRapida();
+    void mostrarRutaMasBarata();
+    void mostrarExplorarDestinos();
+    void mostrarBusquedaCiudadABB();
+    void mostrarVuelosPasajeroAVL();
+    void mostrarMapaRutas();
+    void mostrarRutaEquipajeAdmin();
 
     void ejecutarAccionCliente(int indiceAccion);
     void ejecutarAccionAdmin(int indiceAccion);

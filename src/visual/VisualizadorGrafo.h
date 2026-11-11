@@ -66,6 +66,7 @@ public:
     void agregarArista(int origen, int destino, int costo, int tiempo);
 
     void limpiarResaltados();
+    void resaltarAristaRuta(int origen, int destino, bool esMaleta = false);
     void iniciarAnimacionRuta(const int indicesCiudades[], int cantidad, bool esMaleta = false);
     void resaltarAristaMST(int origen, int destino);
     void actualizarAnimacion(float deltaTiempo);
