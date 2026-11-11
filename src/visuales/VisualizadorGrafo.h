@@ -26,6 +26,14 @@ private:
     static const int MAX_CIUDADES = 30;
     static const int MAX_ARISTAS = 120;
 
+    struct TrayectoriaAnimada {
+        int indices[MAX_CIUDADES];
+        int longitud;
+        int tramoActual;
+        float progreso;
+        bool activa;
+    };
+
     CiudadVisual ciudades[MAX_CIUDADES];
     int totalCiudades;
 
@@ -35,17 +43,18 @@ private:
     int ciudadOrigenIdx;
     int ciudadDestinoIdx;
 
-    int rutaAnimada[MAX_CIUDADES];
-    int longitudRutaAnimada;
-    int tramoActual;
-    float progresoTramo;
-    bool animacionActiva;
+    TrayectoriaAnimada trayectoriaVuelo;
+    TrayectoriaAnimada trayectoriaMaleta;
 
-    int rutaMaletaAnimada[MAX_CIUDADES];
-    int longitudRutaMaleta;
-    int tramoMaletaActual;
-    float progresoMaleta;
-    bool animacionMaletaActiva;
+    void reiniciarTrayectoria(TrayectoriaAnimada& trayectoria);
+    void cargarTrayectoria(TrayectoriaAnimada& trayectoria, const int indicesCiudades[], int cantidad, bool esMaleta);
+    void avanzarTrayectoria(TrayectoriaAnimada& trayectoria, float deltaTiempo, float velocidad);
+    bool existeArista(int origen, int destino) const;
+    bool calcularSegmento(int origen, int destino, sf::Vector2f& p1, sf::Vector2f& p2) const;
+    void dibujarAristaIndividual(sf::RenderWindow& ventana, const sf::Font& fuente, const AristaVisual& arista) const;
+    void dibujarMarcador(sf::RenderWindow& ventana, const sf::Font& fuente,
+                         const TrayectoriaAnimada& trayectoria, sf::Color color,
+                         const std::string& etiqueta, float desplazamientoY) const;
 
 public:
     VisualizadorGrafo();

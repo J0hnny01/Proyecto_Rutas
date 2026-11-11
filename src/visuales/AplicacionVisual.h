@@ -14,7 +14,7 @@ enum class ModuloActivo {
 
 enum class VistaLienzo {
     MapaGrafo,
-    ArbolBinario
+    ArbolEstructura
 };
 
 class AplicacionVisual {
@@ -41,7 +41,7 @@ private:
     BotonVisual botonesCliente[TOTAL_BOTONES_ACCION];
     BotonVisual botonesAdmin[TOTAL_BOTONES_ACCION];
 
-    static const int MAX_LINEAS_INFO = 6;
+    static const int MAX_LINEAS_INFO = 4;
     std::string tituloResultado;
     std::string lineasResultado[MAX_LINEAS_INFO];
 
