@@ -142,38 +142,41 @@ $$\text{Nota Final} = \text{Puntaje del Proyecto (0–100)} \times \text{Factor 
 
 ## Parte II: Definición de las Estructuras Necesarias para el Proyecto
 
+> **Fuente primaria de referencia:** Todas las estructuras, nombres de punteros, convenciones de altura/balance y esquemas algorítmicos toman como primera fuente el material de cátedra del Prof. Pablo A. Venegas Elizondo en `/home/andresj21/Descargas/Anti-estructuras` (`Grafos.pdf`, `Arboles.pdf`, `Estructuras_y_Algoritmos_Avanzados.pdf`, `Estructuras_Asociativas_y_Busqueda.pdf` y `programas/video3_listas.cpp` a `video7_mst.cpp`).  
+> En los programas didácticos de clase se usan ocasionalmente contenedores STL por brevedad (`std::stack`, `std::queue`, `std::vector`, `std::stable_sort`, `std::priority_queue`); en este proyecto se sustituyen obligatoriamente por los TADs propios de la Capa 1 para cumplir la Sección 4 del enunciado.
+
 Toda estructura de datos evaluada se implementará desde cero en `include/` y `src/` utilizando punteros, memoria dinámica y plantillas (`template`) donde aplique, respetando estrictamente la prohibición de contenedores STL.
 
-### Capa 1: TADs Base Propios (`include/tads/`)
+### Capa 1: Estructuras Base y Auxiliares (por tipo de estructura)
 
-| Estructura | Archivo sugerido | Diseño interno | Para qué se usa en el proyecto |
+| Estructura | Archivos (`.h` / `.cpp`) | Diseño interno | Para qué se usa en el proyecto |
 | :--- | :--- | :--- | :--- |
-| **`ListaEnlazada<T>`** | `include/tads/ListaEnlazada.h` | `NodoLista<T>` con `dato` y `siguiente`; punteros `cabeza`, `cola` y contador `tamano`. | **Lista de adyacencia** del grafo; listas de aeronaves, vuelos, tripulación, pasajeros, aristas del MST y rutas reconstruidas. |
-| **`Pila<T>`** | `include/tads/Pila.h` | `NodoPila<T>` enlazado con puntero `tope` y `tamano`. | Invertir el camino de predecesores al reconstruir rutas en **Dijkstra** y **Bellman-Ford** (de destino a origen $\rightarrow$ origen a destino). |
-| **`Cola<T>`** | `include/tads/Cola.h` | `NodoCola<T>` enlazado con punteros `frente` y `final`. | Recorridos por anchura (BFS) para verificar conectividad/alcanzabilidad y procesamiento ordenado de registros. |
-| **`ColaPrioridad<T>`** | `include/tads/ColaPrioridad.h` | **Min-Heap binario** sobre arreglo dinámico propio (`capacidad`, `tamano`, `duplicarCapacidad()`, `flotar()`, `hundir()`). Cada elemento almacena `(clavePrioridad, valor)`. | Selección eficiente del vértice de menor costo/tiempo en **Dijkstra** y de la arista mínima en **Prim** ($O((V+E)\log V)$). |
-| **`ConjuntoDisjunto`** | `include/tads/ConjuntoDisjunto.h` | Arreglos dinámicos `padre[]` y `rango[]` con compresión de caminos (`find`) y unión por rango (`unir`). | Detección de ciclos en tiempo casi constante $O(\alpha(V))$ durante la ejecución de **Kruskal**. |
-| **`Ordenamiento`** | `include/tads/Ordenamiento.h` | Implementación propia de **MergeSort** (o **QuickSort**) sobre arreglos dinámicos / listas sin usar `std::sort`. | Ordenar las aristas por duración ascendente en **Kruskal**, y ordenar listados de resultados (vuelos, opciones de Bellman-Ford). |
+| **`ListaEnlazada<T>`** | `include/listas/ListaEnlazada.h` | `NodoLista<T>` con `dato` y `siguiente`; punteros `cabeza`, `cola` y contador `tamano` (plantilla header-only). | **Lista de adyacencia** del grafo (`insertarAlFinal` para conservar orden); listas de aeronaves, vuelos, tripulación, pasajeros, aristas del MST y rutas reconstruidas. |
+| **`Pila<T>`** | `include/pilas/Pila.h` | `NodoPila<T>` enlazado con puntero `tope` y `tamano` (plantilla header-only). | Sustituye a `std::stack` de `video4_dfs.cpp`; invierte el camino de predecesores en **Dijkstra** y **Bellman-Ford** (de destino a origen $\rightarrow$ origen a destino). |
+| **`Cola<T>`** | `include/colas/Cola.h` | `NodoCola<T>` enlazado con punteros `frente` y `final` (plantilla header-only). | Sustituye a `std::queue` de `video5_bfs.cpp`; recorridos BFS para verificar conectividad/alcanzabilidad y procesamiento de registros. |
+| **`ColaPrioridad<T>`** | `include/colas/ColaPrioridad.h` | **Min-Heap binario** sobre arreglo dinámico propio (`capacidad`, `tamano`, `duplicarCapacidad()`, `flotar()`, `hundir()`; plantilla header-only). Cada elemento almacena `(clavePrioridad, valor)`. | Sustituye a `std::priority_queue` citado en `Grafos.pdf`; selección del vértice mínimo en **Dijkstra** y de la arista mínima en **Prim** ($O((V+E)\log V)$). |
+| **`ConjuntoDisjunto`** | `include/conjuntos/ConjuntoDisjunto.h`, `src/conjuntos/ConjuntoDisjunto.cpp` | Arreglo dinámico `representante[]` y `rango[]` con búsqueda de raíz `encontrar(int x)` (con compresión de caminos) y unión (`unir`), siguiendo `video7_mst.cpp` / `Grafos.pdf`. | Detección de ciclos durante la ejecución de **Kruskal** ($O(\alpha(V))$ amortizado). |
+| **`Ordenamiento`** | `include/ordenamiento/Ordenamiento.h`, `src/ordenamiento/Ordenamiento.cpp` | Implementación propia de **MergeSort** (o **QuickSort**) sobre arreglos dinámicos / listas sin usar `std::sort` ni `std::stable_sort`. | Sustituye a `std::stable_sort` de `video7_mst.cpp` para ordenar aristas por duración ascendente en **Kruskal**, y ordenar listados de vuelos/rutas. |
 
 ---
 
-### Capa 2: Modelos de Dominio y Persistencia (`include/modelos/` y `data/`)
+### Capa 2: Modelos de Dominio y Persistencia (`modelos/`, `persistencia/` y `data/`)
 
-1. **`Ciudad` (`Ciudad.h`)**
+1. **`Ciudad` (`include/modelos/Ciudad.h`, `src/modelos/Ciudad.cpp`)**
    * **Atributos:** `int id`, `std::string codigo` (ej. `"SJO"`), `std::string nombre` (ej. `"San Jose"`), `std::string pais`, `float posX`, `float posY` (posición en el mapa SFML).
-2. **`Ruta` (`Ruta.h`)**
+2. **`Ruta` (`include/modelos/Ruta.h`, `src/modelos/Ruta.cpp`)**
    * **Atributos:** `std::string idRuta`, `std::string origenCodigo`, `std::string destinoCodigo`, `double costo`, `int duracionMin`, `bool activa`.
-3. **`Tripulante` (`Tripulante.h`)**
+3. **`Tripulante` (`include/modelos/Tripulante.h`, `src/modelos/Tripulante.cpp`)**
    * **Atributos:** `std::string id`, `std::string nombre`, `std::string rol` (Piloto, Copiloto, Sobrecargo), `std::string licencia`, `std::string placaAeronave`.
-4. **`Aeronave` (`Aeronave.h`)**
+4. **`Aeronave` (`include/modelos/Aeronave.h`, `src/modelos/Aeronave.cpp`)**
    * **Atributos:** `std::string placa`, `std::string marca`, `std::string modelo`, `int capacidad`, `std::string estado`, `ListaEnlazada<Tripulante> tripulacion`.
-5. **`Equipaje` (`Equipaje.h`)**
+5. **`Equipaje` (`include/modelos/Equipaje.h`, `src/modelos/Equipaje.cpp`)**
    * **Atributos:** `std::string idMaleta`, `double pesoKg`, `ListaEnlazada<std::string> rutaMasBarata` (códigos de ciudad calculados con Dijkstra por costo), `double costoEnvio`, `int duracionEnvio`.
-6. **`Pasajero` (`Pasajero.h`)**
+6. **`Pasajero` (`include/modelos/Pasajero.h`, `src/modelos/Pasajero.cpp`)**
    * **Atributos:** `int idPasajero` (clave numérica para el árbol AVL), `std::string cedula`, `std::string nombre`, `ListaEnlazada<std::string> vuelosAsignados` (códigos de vuelos donde está registrado), `std::string criterioSeleccionado` (`"Tiempo"` o `"Costo"`), `Equipaje maleta`.
-7. **`Vuelo` (`Vuelo.h`)**
+7. **`Vuelo` (`include/modelos/Vuelo.h`, `src/modelos/Vuelo.cpp`)**
    * **Atributos:** `std::string codigoVuelo`, `std::string placaAeronave`, `std::string origenCodigo`, `std::string destinoCodigo`, `double costo`, `int duracionMin`, `std::string horaSalida`, `ListaEnlazada<int> idsPasajeros`.
-8. **`GestorArchivos` (`GestorArchivos.h` / `.cpp`)**
+8. **`GestorArchivos` (`include/persistencia/GestorArchivos.h`, `src/persistencia/GestorArchivos.cpp`)**
    * Lee y escribe con `std::ifstream` / `std::ofstream` y `std::stringstream` (separador `;`) los archivos en `data/`:
      * `data/ciudades.txt` $\rightarrow$ `codigo;nombre;pais;posX;posY`
      * `data/rutas.txt` $\rightarrow$ `idRuta;origen;destino;costo;duracion`
@@ -184,55 +187,54 @@ Toda estructura de datos evaluada se implementará desde cero en `include/` y `s
 
 ---
 
-### Capa 3: Grafo de Vuelos y Algoritmos (`include/grafo/`)
+### Capa 3: Grafo de Vuelos y Algoritmos (`grafo/` y `grafo/algoritmos/`)
 
-1. **Estructuras internas del Grafo (`GrafoVuelos.h` / `.cpp`):**
-   * **`AristaAdyacente`:** `int destinoIdx`, `std::string idRuta`, `double costo`, `int duracionMin`.
-   * **`VerticeCiudad`:** `Ciudad ciudad`, `ListaEnlazada<AristaAdyacente> adyacentes` (Lista de Adyacencia propia).
+1. **Estructuras internas del Grafo (`include/grafo/GrafoVuelos.h`, `src/grafo/GrafoVuelos.cpp`, según `Grafos.pdf` y `video3_listas.cpp`):**
+   * **`NodoArista` (`AristaAdyacente`):** `int destino`, `std::string idRuta`, `double costo`, `int duracionMin`, `NodoArista* siguiente` (o cápsula dentro de `ListaEnlazada` con inserción al final `insertarAlFinal` para conservar orden y liberación explícita `liberar()`).
+   * **`VerticeCiudad`:** `Ciudad ciudad`, `NodoArista* adyacentes` (o `ListaEnlazada<AristaAdyacente> adyacentes` — Lista de Adyacencia propia basada en el patrón `GrafoLista` / `listas[v]`).
    * **`GrafoVuelos`:**
      * Arreglo dinámico propio de `VerticeCiudad` (`vertices`), `int numVertices`, `int capacidad`.
      * Operaciones: `agregarCiudad`, `eliminarCiudad`, `agregarRutaDirigida`, `eliminarRuta`, `modificarRuta`, `buscarIndicePorCodigo`, `buscarIndicePorNombre`.
-2. **Estructuras de resultados para algoritmos:**
-   * **`ResultadoRuta` (Dijkstra):** `bool encontrada`, `double costoTotal`, `int duracionTotal`, `int cantidadEscalas`, `ListaEnlazada<int> caminoIndices`.
-   * **`EntradaDestinoBF` / `ResultadoBellmanFord`:** arreglo de `double costos[]`, `int tiempos[]`, `int predecesores[]`, `bool alcanzable[]`, `bool hayCicloNegativo`.
-   * **`AristaMST`:** `int origenIdx`, `int destinoIdx`, `double peso` (costo en Prim, duración en Kruskal).
+2. **Estructuras de resultados (`include/grafo/ResultadosGrafo.h`, patrón `video6_caminos.cpp` y `video7_mst.cpp`):**
+   * **`ResultadoRuta` (Dijkstra):** `bool encontrada`, `double costoTotal`, `int duracionTotal`, `int cantidadEscalas`, `ListaEnlazada<int> caminoIndices` (calculado con arreglos `dist[]`, `previo[]`, `fijo[]` o `ColaPrioridad`, e `INF`).
+   * **`ResultadoBellmanFord`:** arreglos dinámicos `costos[]`, `tiempos[]`, `previo[]`, `bool alcanzable[]`, `bool hayCicloNegativo`.
+   * **`AristaMST`:** `int origenIdx`, `int destinoIdx`, `double peso` (costo en Prim con `clave[]`, `padre[]`, `enArbol[]`; duración en Kruskal con `ConjuntoDisjunto`: `representante[]` y `encontrar()`).
    * **`ResultadoMST` (Prim / Kruskal):** `ListaEnlazada<AristaMST> aristas`, `double pesoTotal`, `bool esConexo`.
-3. **Algoritmos implementados sobre `GrafoVuelos`:**
-   * `dijkstra(int origen, int destino, bool porCosto)` $\rightarrow$ retorna `ResultadoRuta`.
-   * `calcularRutaMaleta(int origen, int destino)` $\rightarrow$ invoca internamente `dijkstra(origen, destino, true)` (siempre por costo).
-   * `bellmanFord(int origen, bool porCosto)` $\rightarrow$ retorna `ResultadoBellmanFord` hacia todas las ciudades.
-   * `primPorCosto(int origen)` $\rightarrow$ genera el MST de costo mínimo tratando los enlaces disponibles entre pares de ciudades y retorna `ResultadoMST` + `ArbolMST`.
-   * `kruskalPorDuracion()` $\rightarrow$ ordena aristas con `Ordenamiento` propio, evita ciclos con `ConjuntoDisjunto` y retorna `ResultadoMST` + `ArbolMST`.
+3. **Algoritmos separados sobre `GrafoVuelos` (`include/grafo/algoritmos/` y `src/grafo/algoritmos/`):**
+   * `Dijkstra.h/.cpp` $\rightarrow$ ruta económica, rápida y ruta de maleta (siempre por costo).
+   * `BellmanFord.h/.cpp` $\rightarrow$ rutas mínimas hacia todas las ciudades alcanzables desde origen.
+   * `Prim.h/.cpp` $\rightarrow$ MST de costo mínimo + construcción de `ArbolMST`.
+   * `Kruskal.h/.cpp` $\rightarrow$ ordena aristas con `Ordenamiento` propio, evita ciclos con `ConjuntoDisjunto` y genera MST por duración + `ArbolMST`.
 
 ---
 
-### Capa 4: Árboles y Recorridos (`include/arboles/`)
+### Capa 4: Árboles y Recorridos (`include/arboles/` y `src/arboles/`, según `Arboles.pdf`)
 
-1. **Árbol Binario de Búsqueda — `ArbolABB` (`ArbolABB.h` / `.cpp`):**
-   * **`NodoABB`:** `Ciudad ciudad`, `NodoABB* izq`, `NodoABB* der`.
+1. **Árbol Binario de Búsqueda — `ArbolABB` (`include/arboles/ArbolABB.h`, `src/arboles/ArbolABB.cpp`):**
+   * **`NodoABB`:** `Ciudad ciudad`, `NodoABB* izquierdo`, `NodoABB* derecho`.
    * **Criterio de orden:** Alfabético por `ciudad.nombre` (o código).
-   * **Operaciones:** `insertar`, `buscar(nombreCiudad)`, `eliminar`, `limpiar`.
+   * **Operaciones:** `insertar`, `buscar(nombreCiudad)`, `encontrarMinimo`, `eliminarABB`, `limpiar`.
    * **Recorridos:** `preorden()`, `inorden()`, `postorden()`.
    * **Integración visual:** método para volcar nodos y recorridos directamente al `VisualizadorArbol` de SFML (resaltando el nodo buscado).
 
-2. **Árbol AVL — `ArbolAVL` (`ArbolAVL.h` / `.cpp`):**
-   * **`NodoAVL`:** `Pasajero pasajero`, `int altura`, `NodoAVL* izq`, `NodoAVL* der`.
-   * **Criterio de orden:** Por `pasajero.idPasajero` (entero único). Cada nodo mantiene la lista de vuelos a los que está asignado ese pasajero.
-   * **Operaciones de balanceo:** `altura()`, `factorEquilibrio()`, `rotacionDerecha` (caso LL), `rotacionIzquierda` (caso RR), `rotacionIzqDer` (caso LR), `rotacionDerIzq` (caso RL).
+2. **Árbol AVL — `ArbolAVL` (`include/arboles/ArbolAVL.h`, `src/arboles/ArbolAVL.cpp`):**
+   * **`NodoAVL`:** `Pasajero pasajero`, `int altura`, `NodoAVL* izquierdo`, `NodoAVL* derecho`.
+   * **Criterio de orden y balance (convención de cátedra):** Ordenado por `pasajero.idPasajero`; cada nodo conserva la lista de vuelos asignados. Se usa `alturaNodo(nullptr) = -1` (hojas con `altura = 0`) y `factorBalance(nodo) = alturaNodo(nodo->izquierdo) - alturaNodo(nodo->derecho)`.
+   * **Operaciones de balanceo:** `alturaNodo()`, `factorBalance()`, `rotacionDerecha`, `rotacionIzquierda` (y compuestas izquierda-derecha / derecha-izquierda), `insertarAVL`, `eliminarAVL`.
    * **Operaciones de negocio:** `insertarOActualizarAsignacion`, `buscarPasajero(id)`, `estaAsignadoAVuelo(id, codigoVuelo)`, `eliminar`.
    * **Recorridos:** `preorden()`, `inorden()`, `postorden()`.
-   * **Integración visual:** volcado completo del árbol balanceado al `VisualizadorArbol` (mostrando ID, nombre/vuelos y `FE`).
+   * **Integración visual:** volcado completo del árbol balanceado al `VisualizadorArbol` (mostrando ID, nombre/vuelos y factor de balance).
 
-3. **Árbol Generado de Expansión Mínima — `ArbolMST` (`ArbolMST.h` / `.cpp`):**
+3. **Árbol Generado de Expansión Mínima — `ArbolMST` (`include/arboles/ArbolMST.h`, `src/arboles/ArbolMST.cpp`):**
    * *¿Por qué existe esta estructura?* El enunciado exige explícitamente: *"Implemente los métodos de recorrido de los árboles, utilícelos en cada árbol generado"* (incluyendo los árboles de Prim y Kruskal).
-   * **`NodoMST`:** `int indiceCiudad`, `std::string codigoCiudad`, `std::string nombreCiudad`, `double pesoDesdePadre`, `ListaEnlazada<NodoMST*> hijos` (representación n-aria enraizada en la ciudad inicial, o representación binaria Hijo-Izquierdo / Hermano-Derecho para recorridos binarios estándar).
+   * **`NodoMST` (patrón `NodoGeneral` de `Arboles.pdf`):** `int indiceCiudad`, `std::string codigoCiudad`, `std::string nombreCiudad`, `double pesoDesdePadre`, `NodoMST* primerHijo`, `NodoMST* siguienteHermano` (representación estándar hijo-izquierdo / hermano-derecho para árboles generales).
    * **Operaciones:** `construirDesdeAristas(ResultadoMST, int raizIdx)`, `preorden()`, `inorden()`, `postorden()`.
 
 ---
 
-### Capa 5: Orquestación del Sistema y Enlace con SFML (`include/modelos/SistemaAerolinea.h`)
+### Capa 5: Orquestación del Sistema y Enlace con SFML (`include/sistema/` y `src/sistema/`)
 
-* **`SistemaAerolinea`:** Clase coordinadora que mantiene en memoria:
+* **`SistemaAerolinea` (`include/sistema/SistemaAerolinea.h`, `src/sistema/SistemaAerolinea.cpp`):** Clase coordinadora que mantiene en memoria:
   * `GrafoVuelos grafo`
   * `ArbolABB arbolCiudades`
   * `ArbolAVL arbolPasajeros`
@@ -244,9 +246,9 @@ Toda estructura de datos evaluada se implementará desde cero en `include/` y `s
 ---
 
 ### Orden Recomendado de Implementación
-1. **Fase 1 — TADs Base (`include/tads/`):** `ListaEnlazada`, `Pila`, `Cola`, `ColaPrioridad`, `ConjuntoDisjunto`, `Ordenamiento`.
-2. **Fase 2 — Modelos y Archivos (`include/modelos/` y `data/`):** Clases del dominio + `GestorArchivos` + archivos `.txt` iniciales de prueba.
-3. **Fase 3 — Árboles (`include/arboles/`):** `ArbolABB`, `ArbolAVL` (con sus 4 rotaciones) y `ArbolMST` con sus recorridos.
-4. **Fase 4 — Grafo y Algoritmos (`include/grafo/`):** `GrafoVuelos` (lista de adyacencia), `Dijkstra` (tiempo, costo y equipaje), `Bellman-Ford`, `Prim` y `Kruskal`.
-5. **Fase 5 — Integración con SFML (`src/visuales/`):** Conectar `SistemaAerolinea` con los botones, formularios/consola auxiliar de ingreso de datos, animaciones de vuelo/equipaje y visualización de árboles.
+1. **Fase 1 — Estructuras Base (`listas/`, `pilas/`, `colas/`, `conjuntos/`, `ordenamiento/`):** `ListaEnlazada`, `Pila`, `Cola`, `ColaPrioridad`, `ConjuntoDisjunto`, `Ordenamiento`.
+2. **Fase 2 — Modelos y Persistencia (`modelos/`, `persistencia/` y `data/`):** Clases del dominio + `GestorArchivos` + archivos `.txt` iniciales de prueba.
+3. **Fase 3 — Árboles (`arboles/`):** `ArbolABB`, `ArbolAVL` (con sus rotaciones) y `ArbolMST` con sus recorridos.
+4. **Fase 4 — Grafo y Algoritmos (`grafo/` y `grafo/algoritmos/`):** `GrafoVuelos` (lista de adyacencia), `ResultadosGrafo`, `Dijkstra` (tiempo, costo y equipaje), `BellmanFord`, `Prim` y `Kruskal`.
+5. **Fase 5 — Orquestación e Integración con SFML (`sistema/` y `src/visuales/`):** Conectar `SistemaAerolinea` con los botones, captura/ingreso de datos, animaciones de vuelo/equipaje y visualización de árboles.
 6. **Fase 6 — Entregables finales:** Actualizar `README.md`, redactar informe técnico (máx. 6 págs con diagrama y complejidades $O$) y preparar defensa oral en pareja.
