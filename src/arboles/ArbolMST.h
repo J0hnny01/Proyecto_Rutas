@@ -2,15 +2,7 @@
 #define ARBOL_MST_H
 
 #include <string>
-
-struct AristaMST {
-	int origen;
-	int destino;
-	int peso;
-
-	AristaMST() : origen(-1), destino(-1), peso(0) {}
-	AristaMST(int u, int v, int p) : origen(u), destino(v), peso(p) {}
-};
+#include "../estructuras/ResultadosGrafo.h"
 
 struct NodoMST {
 	int indiceCiudad;
@@ -59,6 +51,7 @@ public:
 	void crearRaiz(int indiceCiudad, const std::string& codigoCiudad, const std::string& nombreCiudad);
 	bool agregarHijo(int indicePadre, int indiceHijo, const std::string& codigoHijo, const std::string& nombreHijo, int peso);
 	bool construirDesdeAristas(int indiceRaiz, const AristaMST* aristas, int totalAristas, const std::string* codigos, const std::string* nombres, int totalVertices);
+	bool construirDesdeResultado(int indiceRaiz, const ResultadoMST& resultado, const std::string* codigos, const std::string* nombres, int totalVertices);
 
 	const NodoMST* buscarPorIndice(int indiceCiudad) const;
 	const NodoMST* buscarPorCodigo(const std::string& codigo) const;

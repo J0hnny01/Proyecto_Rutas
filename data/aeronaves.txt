@@ -1,4 +1,4 @@
-TI-AIR01;Airbus;A320;180;Activa
+TI-AIR01;Airbus;A320;180;En vuelo
 TI-BOE02;Boeing;737-800;189;En vuelo
 TI-AIR03;Airbus;A321neo;220;Activa
 TI-EMB04;Embraer;E190;100;Activa

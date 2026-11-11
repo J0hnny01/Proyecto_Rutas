@@ -254,10 +254,10 @@ bool ArbolMST::construirDesdeAristas(int indiceRaiz, const AristaMST* aristas, i
 
 		for (int i = 0; i < totalAristas; i++) {
 			int vecino = -1;
-			if (aristas[i].origen == actual && aristas[i].destino >= 0 && aristas[i].destino < totalVertices && !visitado[aristas[i].destino]) {
-				vecino = aristas[i].destino;
-			} else if (aristas[i].destino == actual && aristas[i].origen >= 0 && aristas[i].origen < totalVertices && !visitado[aristas[i].origen]) {
-				vecino = aristas[i].origen;
+			if (aristas[i].origenIdx == actual && aristas[i].destinoIdx >= 0 && aristas[i].destinoIdx < totalVertices && !visitado[aristas[i].destinoIdx]) {
+				vecino = aristas[i].destinoIdx;
+			} else if (aristas[i].destinoIdx == actual && aristas[i].origenIdx >= 0 && aristas[i].origenIdx < totalVertices && !visitado[aristas[i].origenIdx]) {
+				vecino = aristas[i].origenIdx;
 			}
 			if (vecino != -1) {
 				visitado[vecino] = true;
@@ -272,6 +272,24 @@ bool ArbolMST::construirDesdeAristas(int indiceRaiz, const AristaMST* aristas, i
 
 	delete[] visitado;
 	return true;
+}
+
+bool ArbolMST::construirDesdeResultado(int indiceRaiz, const ResultadoMST& resultado, const std::string* codigos, const std::string* nombres, int totalVertices) {
+	int totalAristas = resultado.aristas.tamano();
+	if (totalAristas == 0) {
+		return construirDesdeAristas(indiceRaiz, nullptr, 0, codigos, nombres, totalVertices);
+	}
+	AristaMST* lista = new AristaMST[totalAristas];
+	const ListaEnlazada<AristaMST>::NodoLista* actual = resultado.aristas.obtenerCabeza();
+	int i = 0;
+	while (actual != nullptr && i < totalAristas) {
+		lista[i] = actual->dato;
+		actual = actual->siguiente;
+		i++;
+	}
+	bool ok = construirDesdeAristas(indiceRaiz, lista, totalAristas, codigos, nombres, totalVertices);
+	delete[] lista;
+	return ok;
 }
 
 const NodoMST* ArbolMST::buscarPorIndice(int indiceCiudad) const {

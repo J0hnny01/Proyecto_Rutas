@@ -35,7 +35,13 @@ private:
 
     bool criterioBellmanCosto;
     int ultimaAccionCliente;
+    int ultimaAccionAdmin;
     int indicePasajeroActivo;
+    int indiceAeronaveActiva;
+    int indiceVueloActivo;
+    int modoArbolVista;
+    bool ultimoMSTEsPrim;
+    ArbolMST ultimoArbolMST;
 
     BotonVisual btnTabCliente;
     BotonVisual btnTabAdmin;
@@ -49,6 +55,10 @@ private:
     BotonVisual botonesCliente[TOTAL_BOTONES_ACCION];
     BotonVisual botonesAdmin[TOTAL_BOTONES_ACCION];
 
+    BotonVisual btnAdminEstadoAeronave;
+    BotonVisual btnAdminAjustarRuta;
+    BotonVisual btnAdminToggleVueloPasajero;
+
     static const int MAX_LINEAS_INFO = 4;
     string tituloResultado;
     string lineasResultado[MAX_LINEAS_INFO];
@@ -58,6 +68,7 @@ private:
     void procesarEventos();
     void manejarClicIzquierdo(float mx, float my);
     void manejarClicDerecho(float mx, float my);
+    bool manejarClicEdicionRapidaAdmin(float mx, float my);
 
     bool validarOrigenDestino(string& codOrigen, string& codDestino, bool exigirDistintos);
     void animarIndices(const ListaEnlazada<int>& indicesLista, bool esMaleta);
@@ -70,7 +81,22 @@ private:
     void mostrarBusquedaCiudadABB();
     void mostrarVuelosPasajeroAVL();
     void mostrarMapaRutas();
+    int volcarABBRec(const NodoABB* nodo, const string& codigoResaltado);
+    int volcarAVLRec(const NodoAVL* nodo, const string& idResaltado);
+    void volcarMSTRec(const NodoMST* nodo, int padreVisualIdx);
+
+    void mostrarArbolABBVisual(const string& codigoResaltado);
+    void mostrarArbolAVLVisual(const string& idResaltado);
+    void mostrarArbolMSTVisual(const string& titulo);
+
     void mostrarRutaEquipajeAdmin();
+    void mostrarAeronavesYCrewAdmin();
+    void mostrarVuelosYPasajerosAdmin();
+    void mostrarMSTAdmin(bool usarPrim);
+    void mostrarSiguienteArbolAdmin();
+    void rotarEstadoAeronaveRapida();
+    void ajustarTarifaRutaRapida(int deltaCosto);
+    void alternarVueloPasajeroRapido();
 
     void ejecutarAccionCliente(int indiceAccion);
     void ejecutarAccionAdmin(int indiceAccion);

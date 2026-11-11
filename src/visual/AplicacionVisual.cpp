@@ -8,7 +8,12 @@ AplicacionVisual::AplicacionVisual()
       sistema("data"),
       criterioBellmanCosto(true),
       ultimaAccionCliente(-1),
-      indicePasajeroActivo(0) {
+      ultimaAccionAdmin(-1),
+      indicePasajeroActivo(0),
+      indiceAeronaveActiva(0),
+      indiceVueloActivo(0),
+      modoArbolVista(0),
+      ultimoMSTEsPrim(true) {
     ventana.setFramerateLimit(60);
     if (!CompatSFML::cargarFuente(fuente, "assets/arial.ttf")) {
         CompatSFML::cargarFuente(fuente, "../assets/arial.ttf");
@@ -55,6 +60,10 @@ void AplicacionVisual::inicializarInterfaz() {
     for (int i = 0; i < TOTAL_BOTONES_ACCION; ++i) {
         botonesAdmin[i].configurar(18.0f, 178.0f + i * 44.0f, 239.0f, 36.0f, textosAdmin[i], false, 13);
     }
+
+    btnAdminEstadoAeronave.configurar(18.0f, 482.0f, 239.0f, 32.0f, "Rotar estado aeronave", true, 12);
+    btnAdminAjustarRuta.configurar(18.0f, 522.0f, 239.0f, 32.0f, "Tarifa Origen->Dest +10", true, 12);
+    btnAdminToggleVueloPasajero.configurar(18.0f, 562.0f, 239.0f, 32.0f, "Asignar/quitar vuelo AVL", true, 12);
 
     limpiarLineasResultado("Resultados");
 }
@@ -340,6 +349,96 @@ void AplicacionVisual::mostrarExplorarDestinos() {
                          " ciudades | Clic de nuevo cambia Costo/Tiempo";
 }
 
+int AplicacionVisual::volcarABBRec(const NodoABB* nodo, const string& codigoResaltado) {
+    if (nodo == nullptr) {
+        return -1;
+    }
+    int izq = volcarABBRec(nodo->izquierdo, codigoResaltado);
+    int der = volcarABBRec(nodo->derecho, codigoResaltado);
+    return arbolVisual.agregarNodo(
+        nodo->codigo,
+        truncarTexto(nodo->nombre, 14),
+        izq,
+        der,
+        nodo->codigo == codigoResaltado);
+}
+
+int AplicacionVisual::volcarAVLRec(const NodoAVL* nodo, const string& idResaltado) {
+    if (nodo == nullptr) {
+        return -1;
+    }
+    int izq = volcarAVLRec(nodo->izquierdo, idResaltado);
+    int der = volcarAVLRec(nodo->derecho, idResaltado);
+    string sub = "h" + to_string(nodo->altura) + " " + truncarTexto(nodo->dato.getVuelosTexto(), 14);
+    return arbolVisual.agregarNodo(
+        nodo->dato.getId(),
+        sub,
+        izq,
+        der,
+        nodo->dato.getId() == idResaltado);
+}
+
+void AplicacionVisual::volcarMSTRec(const NodoMST* nodo, int padreVisualIdx) {
+    if (nodo == nullptr) {
+        return;
+    }
+    string sub = (nodo->pesoDesdePadre == 0)
+        ? "Raiz"
+        : ((ultimoMSTEsPrim ? "$" : "") + to_string(nodo->pesoDesdePadre) + (ultimoMSTEsPrim ? "" : "m"));
+    int idxActual = arbolVisual.agregarNodoGeneral(
+        nodo->codigoCiudad,
+        sub,
+        nodo->pesoDesdePadre == 0);
+    if (idxActual != -1) {
+        if (padreVisualIdx == -1) {
+            arbolVisual.setRaiz(idxActual);
+        } else {
+            arbolVisual.enlazarHijo(padreVisualIdx, idxActual);
+        }
+        volcarMSTRec(nodo->primerHijo, idxActual);
+    }
+    volcarMSTRec(nodo->siguienteHermano, padreVisualIdx);
+}
+
+void AplicacionVisual::mostrarArbolABBVisual(const string& codigoResaltado) {
+    const ArbolABB& abb = sistema.obtenerArbolCiudades();
+    arbolVisual.limpiar("Arbol ABB de Ciudades (por nombre)");
+    if (!abb.estaVacio()) {
+        int raizIdx = volcarABBRec(abb.getRaiz(), codigoResaltado);
+        arbolVisual.setRaiz(raizIdx);
+    }
+    arbolVisual.setRecorridos(
+        truncarTexto(abb.getPreorden(), 102),
+        truncarTexto(abb.getInorden(), 102),
+        truncarTexto(abb.getPostorden(), 102));
+}
+
+void AplicacionVisual::mostrarArbolAVLVisual(const string& idResaltado) {
+    const ArbolAVL& avl = sistema.obtenerArbolPasajeros();
+    arbolVisual.limpiar("Arbol AVL de Pasajeros (por ID)");
+    if (!avl.estaVacio()) {
+        int raizIdx = volcarAVLRec(avl.getRaiz(), idResaltado);
+        arbolVisual.setRaiz(raizIdx);
+    }
+    arbolVisual.setRecorridos(
+        truncarTexto(avl.getPreorden(), 102),
+        truncarTexto(avl.getInorden(), 102),
+        truncarTexto(avl.getPostorden(), 102));
+}
+
+void AplicacionVisual::mostrarArbolMSTVisual(const string& titulo) {
+    arbolVisual.limpiar(titulo);
+    if (ultimoArbolMST.estaVacio()) {
+        arbolVisual.setRecorridos("-", "-", "-");
+        return;
+    }
+    volcarMSTRec(ultimoArbolMST.getRaiz(), -1);
+    arbolVisual.setRecorridos(
+        truncarTexto(ultimoArbolMST.getPreorden(), 102),
+        truncarTexto(ultimoArbolMST.getInorden(), 102),
+        truncarTexto(ultimoArbolMST.getPostorden(), 102));
+}
+
 void AplicacionVisual::mostrarBusquedaCiudadABB() {
     vistaActual = VistaLienzo::ArbolEstructura;
     arbolVisual.limpiar("Arbol Binario de Busqueda (ABB)");
@@ -369,6 +468,7 @@ void AplicacionVisual::mostrarBusquedaCiudadABB() {
 
     int salientes = sistema.contarRutasDesdeCiudad(nodo->codigo);
     const ArbolABB& abb = sistema.obtenerArbolCiudades();
+    mostrarArbolABBVisual(nodo->codigo);
 
     lineasResultado[0] = truncarTexto(
         "Encontrada en ABB: " + nodo->nombre + " (" + nodo->codigo +
@@ -403,6 +503,7 @@ void AplicacionVisual::mostrarVuelosPasajeroAVL() {
     }
 
     const ArbolAVL& avl = sistema.obtenerArbolPasajeros();
+    mostrarArbolAVLVisual(nodo->dato.getId());
     lineasResultado[0] = truncarTexto(
         "Pasajero AVL: " + nodo->dato.getNombre() + " (ID: " + nodo->dato.getId() +
         ") | Maletas: " + to_string(nodo->dato.getCantidadMaletas()), 108);
@@ -523,6 +624,10 @@ void AplicacionVisual::manejarClicIzquierdo(float mx, float my) {
         return;
     }
 
+    if (moduloActual == ModuloActivo::Administrativo && manejarClicEdicionRapidaAdmin(mx, my)) {
+        return;
+    }
+
     int totalC = grafoVisual.getTotalCiudades();
     if (totalC > 0) {
         if (btnOrigenAnt.contienePunto(mx, my)) {
@@ -576,6 +681,10 @@ void AplicacionVisual::manejarClicIzquierdo(float mx, float my) {
 }
 
 void AplicacionVisual::manejarClicDerecho(float mx, float my) {
+    if (moduloActual == ModuloActivo::Administrativo && btnAdminAjustarRuta.contienePunto(mx, my)) {
+        ajustarTarifaRutaRapida(-10);
+        return;
+    }
     if (vistaActual == VistaLienzo::MapaGrafo) {
         int ciudadClic = grafoVisual.detectarCiudadClic(mx, my);
         if (ciudadClic != -1) {
@@ -609,38 +718,364 @@ void AplicacionVisual::ejecutarAccionCliente(int indiceAccion) {
     ultimaAccionCliente = indiceAccion;
 }
 
+bool AplicacionVisual::manejarClicEdicionRapidaAdmin(float mx, float my) {
+    if (btnAdminEstadoAeronave.contienePunto(mx, my)) {
+        rotarEstadoAeronaveRapida();
+        return true;
+    }
+    if (btnAdminAjustarRuta.contienePunto(mx, my)) {
+        ajustarTarifaRutaRapida(10);
+        return true;
+    }
+    if (btnAdminToggleVueloPasajero.contienePunto(mx, my)) {
+        alternarVueloPasajeroRapido();
+        return true;
+    }
+    return false;
+}
+
+void AplicacionVisual::mostrarAeronavesYCrewAdmin() {
+    vistaActual = VistaLienzo::MapaGrafo;
+    limpiarLineasResultado("Aeronaves y tripulacion");
+
+    const ListaEnlazada<Aeronave>& aeronaves = sistema.obtenerAeronaves();
+    int totalAeronaves = aeronaves.tamano();
+    if (totalAeronaves == 0) {
+        lineasResultado[0] = "No hay aeronaves registradas en el sistema.";
+        return;
+    }
+
+    if (ultimaAccionAdmin == 0) {
+        indiceAeronaveActiva = (indiceAeronaveActiva + 1) % totalAeronaves;
+    } else {
+        indiceAeronaveActiva = ((indiceAeronaveActiva % totalAeronaves) + totalAeronaves) % totalAeronaves;
+    }
+
+    const Aeronave& aero = aeronaves.obtener(indiceAeronaveActiva);
+    string resumenTrip = sistema.obtenerResumenTripulacionPorAeronave(aero.getPlaca());
+
+    lineasResultado[0] = truncarTexto(
+        "Aeronave [" + to_string(indiceAeronaveActiva + 1) + "/" + to_string(totalAeronaves) +
+        "]: " + aero.getPlaca() + " | " + aero.getMarca() + " " + aero.getModelo() +
+        " | Cap: " + to_string(aero.getCapacidad()) + " | Estado: " + aero.getEstado(), 108);
+    lineasResultado[1] = truncarTexto("Tripulacion asignada: " + resumenTrip, 108);
+    lineasResultado[2] = "Flota total: " + to_string(totalAeronaves) +
+                         " aeronaves | Tripulantes cargados: " + to_string(sistema.obtenerTripulantes().tamano());
+    lineasResultado[3] = "Clic de nuevo para ciclar aeronave | Usa 'Rotar estado aeronave' para editar en vivo";
+}
+
+void AplicacionVisual::mostrarVuelosYPasajerosAdmin() {
+    vistaActual = VistaLienzo::MapaGrafo;
+    limpiarLineasResultado("Vuelos y pasajeros");
+
+    const ListaEnlazada<Vuelo>& vuelos = sistema.obtenerVuelos();
+    int totalVuelos = vuelos.tamano();
+    if (totalVuelos == 0) {
+        lineasResultado[0] = "No hay vuelos programados en el sistema.";
+        return;
+    }
+
+    if (ultimaAccionAdmin == 1) {
+        indiceVueloActivo = (indiceVueloActivo + 1) % totalVuelos;
+    } else {
+        indiceVueloActivo = ((indiceVueloActivo % totalVuelos) + totalVuelos) % totalVuelos;
+    }
+
+    const Vuelo& vuelo = vuelos.obtener(indiceVueloActivo);
+    string resumenPax = sistema.obtenerResumenPasajerosPorVuelo(vuelo.obtenerCodigoVuelo());
+
+    const GrafoVuelos& grafo = sistema.obtenerGrafo();
+    int idxO = grafo.buscarIndicePorCodigo(vuelo.obtenerOrigenCodigo());
+    int idxD = grafo.buscarIndicePorCodigo(vuelo.obtenerDestinoCodigo());
+    grafoVisual.limpiarResaltados();
+    if (idxO != -1 && idxD != -1) {
+        grafoVisual.resaltarAristaRuta(idxO, idxD, false);
+    }
+
+    lineasResultado[0] = truncarTexto(
+        "Vuelo [" + to_string(indiceVueloActivo + 1) + "/" + to_string(totalVuelos) +
+        "]: " + vuelo.obtenerCodigoVuelo() + " (" + vuelo.obtenerOrigenCodigo() + " -> " +
+        vuelo.obtenerDestinoCodigo() + ") | Aeronave: " + vuelo.obtenerPlacaAeronave(), 108);
+    lineasResultado[1] = "Tarifa: $" + to_string(vuelo.obtenerCosto()) +
+                         " | Duracion: " + to_string(vuelo.obtenerTiempoMin()) +
+                         " min | Pasajeros en AVL: " + to_string(sistema.obtenerArbolPasajeros().getCantidad());
+    lineasResultado[2] = truncarTexto("Pasajeros asignados: " + resumenPax, 108);
+    lineasResultado[3] = "Clic de nuevo para ciclar vuelo | Usa 'Asignar/quitar vuelo AVL' sobre pasajero activo";
+}
+
+void AplicacionVisual::mostrarMSTAdmin(bool usarPrim) {
+    vistaActual = VistaLienzo::MapaGrafo;
+    limpiarLineasResultado(usarPrim ? "Prim (MST por costo)" : "Kruskal (MST por duracion)");
+
+    int total = grafoVisual.getTotalCiudades();
+    int idxOrigen = grafoVisual.getCiudadOrigen();
+    if (total == 0 || idxOrigen < 0 || idxOrigen >= total) {
+        grafoVisual.limpiarResaltados();
+        lineasResultado[0] = "No hay una ciudad de origen valida para calcular el MST.";
+        return;
+    }
+
+    string codOrigen = grafoVisual.getCiudad(idxOrigen).codigo;
+    ultimoMSTEsPrim = usarPrim;
+    ResultadoMST resultado = usarPrim
+        ? sistema.calcularPrimCosto(codOrigen, ultimoArbolMST)
+        : sistema.calcularKruskalDuracion(codOrigen, ultimoArbolMST);
+
+    grafoVisual.limpiarResaltados();
+    for (int i = 0; i < resultado.aristas.tamano(); ++i) {
+        const AristaMST& arista = resultado.aristas.obtener(i);
+        grafoVisual.resaltarAristaMST(arista.origenIdx, arista.destinoIdx);
+    }
+
+    string pesoTexto = usarPrim
+        ? ("$" + to_string(resultado.pesoTotal))
+        : (to_string(resultado.pesoTotal) + " min");
+    lineasResultado[0] = string(usarPrim ? "Prim" : "Kruskal") + " desde " + codOrigen +
+                         " | Peso total: " + pesoTexto +
+                         " | Aristas MST: " + to_string(resultado.aristas.tamano()) +
+                         " | Conexo: " + (resultado.esConexo ? "Si" : "No");
+    lineasResultado[1] = truncarTexto("Preorden MST: " + ultimoArbolMST.getPreorden(), 108);
+    lineasResultado[2] = truncarTexto("Niveles MST: " + ultimoArbolMST.getPorNiveles(), 108);
+    lineasResultado[3] = "Presiona 'Ver arboles (ABB/AVL/MST)' para ver el arbol general y sus recorridos";
+}
+
+void AplicacionVisual::mostrarSiguienteArbolAdmin() {
+    vistaActual = VistaLienzo::ArbolEstructura;
+    if (ultimaAccionAdmin == 5) {
+        modoArbolVista = (modoArbolVista + 1) % 3;
+    }
+
+    if (modoArbolVista == 0) {
+        if (ultimoArbolMST.estaVacio() && grafoVisual.getTotalCiudades() > 0) {
+            int idxOrigen = grafoVisual.getCiudadOrigen();
+            if (idxOrigen < 0 || idxOrigen >= grafoVisual.getTotalCiudades()) {
+                idxOrigen = 0;
+            }
+            ultimoMSTEsPrim = true;
+            sistema.calcularPrimCosto(grafoVisual.getCiudad(idxOrigen).codigo, ultimoArbolMST);
+        }
+        string titulo = ultimoMSTEsPrim
+            ? "Arbol MST General - Prim (costo)"
+            : "Arbol MST General - Kruskal (tiempo)";
+        mostrarArbolMSTVisual(titulo);
+        limpiarLineasResultado("Despliegue grafico: Arbol MST");
+        if (ultimoArbolMST.estaVacio()) {
+            lineasResultado[0] = "No hay ciudades en el grafo para construir el MST.";
+        } else {
+            string pesoTexto = ultimoMSTEsPrim
+                ? ("$" + to_string(ultimoArbolMST.getPesoTotal()))
+                : (to_string(ultimoArbolMST.getPesoTotal()) + " min");
+            lineasResultado[0] = "Nodos: " + to_string(ultimoArbolMST.getCantidadNodos()) +
+                                 " | Aristas: " + to_string(ultimoArbolMST.getCantidadAristas()) +
+                                 " | Peso total: " + pesoTexto +
+                                 " | Hojas: " + to_string(ultimoArbolMST.contarHojas());
+            lineasResultado[1] = truncarTexto("Preorden: " + ultimoArbolMST.getPreorden(), 108);
+            lineasResultado[2] = truncarTexto("Inorden: " + ultimoArbolMST.getInorden(), 108);
+            lineasResultado[3] = "Clic de nuevo en 'Ver arboles' para cambiar a ABB de ciudades";
+        }
+    } else if (modoArbolVista == 1) {
+        string codResaltado = "";
+        int total = grafoVisual.getTotalCiudades();
+        int idxConsulta = (grafoVisual.getCiudadDestino() >= 0 && grafoVisual.getCiudadDestino() < total)
+            ? grafoVisual.getCiudadDestino()
+            : grafoVisual.getCiudadOrigen();
+        if (idxConsulta >= 0 && idxConsulta < total) {
+            codResaltado = grafoVisual.getCiudad(idxConsulta).codigo;
+        }
+        const ArbolABB& abb = sistema.obtenerArbolCiudades();
+        mostrarArbolABBVisual(codResaltado);
+        limpiarLineasResultado("Despliegue grafico: Arbol ABB de Ciudades");
+        lineasResultado[0] = "Nodos ABB: " + to_string(abb.getCantidad()) +
+                             " | Altura: " + to_string(abb.getAltura()) +
+                             " | Hojas: " + to_string(abb.contarHojas());
+        lineasResultado[1] = truncarTexto("Preorden: " + abb.getPreorden(), 108);
+        lineasResultado[2] = truncarTexto("Inorden: " + abb.getInorden(), 108);
+        lineasResultado[3] = "Clic de nuevo en 'Ver arboles' para cambiar a AVL de pasajeros";
+    } else {
+        bool hayPax = false;
+        Pasajero pax = obtenerPasajeroActivo(hayPax);
+        string idResaltado = hayPax ? pax.getId() : "";
+        const ArbolAVL& avl = sistema.obtenerArbolPasajeros();
+        mostrarArbolAVLVisual(idResaltado);
+        limpiarLineasResultado("Despliegue grafico: Arbol AVL de Pasajeros");
+        lineasResultado[0] = "Nodos AVL: " + to_string(avl.getCantidad()) +
+                             " | Altura: " + to_string(avl.getAltura()) +
+                             " | Hojas: " + to_string(avl.contarHojas()) +
+                             (hayPax ? (" | Activo: " + pax.getNombre()) : "");
+        lineasResultado[1] = truncarTexto("Preorden: " + avl.getPreorden(), 108);
+        lineasResultado[2] = truncarTexto("Inorden: " + avl.getInorden(), 108);
+        lineasResultado[3] = "Clic de nuevo en 'Ver arboles' para volver al Arbol MST";
+    }
+}
+
+void AplicacionVisual::rotarEstadoAeronaveRapida() {
+    vistaActual = VistaLienzo::MapaGrafo;
+    limpiarLineasResultado("Edicion rapida: estado de aeronave");
+
+    const ListaEnlazada<Aeronave>& aeronaves = sistema.obtenerAeronaves();
+    int totalAeronaves = aeronaves.tamano();
+    if (totalAeronaves == 0) {
+        lineasResultado[0] = "No hay aeronaves disponibles para modificar.";
+        return;
+    }
+
+    indiceAeronaveActiva = ((indiceAeronaveActiva % totalAeronaves) + totalAeronaves) % totalAeronaves;
+    Aeronave aero = aeronaves.obtener(indiceAeronaveActiva);
+
+    string estadoActual = aero.getEstado();
+    string nuevoEstado = "Activa";
+    if (estadoActual == "Activa") {
+        nuevoEstado = "En vuelo";
+    } else if (estadoActual == "En vuelo") {
+        nuevoEstado = "Mantenimiento";
+    }
+
+    if (!sistema.cambiarEstadoAeronaveAdmin(aero.getPlaca(), nuevoEstado)) {
+        lineasResultado[0] = "No se pudo actualizar el estado de la aeronave " + aero.getPlaca() + ".";
+        return;
+    }
+
+    for (int j = 0; j < TOTAL_BOTONES_ACCION; ++j) {
+        botonesAdmin[j].setActivo(j == 0);
+    }
+    ultimaAccionAdmin = 0;
+
+    lineasResultado[0] = truncarTexto(
+        "Aeronave " + aero.getPlaca() + " (" + aero.getMarca() + " " + aero.getModelo() +
+        "): " + estadoActual + " -> " + nuevoEstado, 108);
+    lineasResultado[1] = truncarTexto(
+        "Tripulacion asignada: " + sistema.obtenerResumenTripulacionPorAeronave(aero.getPlaca()), 108);
+    lineasResultado[2] = "Cambio guardado en data/aeronaves.txt";
+    lineasResultado[3] = "Usa 'Aeronaves y tripulacion' para seleccionar otra aeronave";
+}
+
+void AplicacionVisual::ajustarTarifaRutaRapida(int deltaCosto) {
+    vistaActual = VistaLienzo::MapaGrafo;
+    limpiarLineasResultado("Edicion rapida: tarifa de ruta");
+
+    string codOrigen;
+    string codDestino;
+    if (!validarOrigenDestino(codOrigen, codDestino, true)) {
+        return;
+    }
+
+    const ListaEnlazada<Ruta>& rutas = sistema.obtenerRutas();
+    bool encontrada = false;
+    int costoAnterior = 0;
+    int tiempoMin = 0;
+    for (int i = 0; i < rutas.tamano(); ++i) {
+        const Ruta& r = rutas.obtener(i);
+        if (r.obtenerOrigenCodigo() == codOrigen && r.obtenerDestinoCodigo() == codDestino) {
+            encontrada = true;
+            costoAnterior = r.obtenerCosto();
+            tiempoMin = r.obtenerTiempoMin();
+            break;
+        }
+    }
+
+    if (!encontrada) {
+        lineasResultado[0] = "No existe ruta directa " + codOrigen + " -> " + codDestino + " para modificar.";
+        lineasResultado[1] = "Selecciona Origen y Destino con conexion directa en el mapa.";
+        return;
+    }
+
+    int nuevoCosto = costoAnterior + deltaCosto;
+    if (nuevoCosto < 10) {
+        nuevoCosto = 10;
+    }
+
+    if (!sistema.modificarRutaAdmin(codOrigen, codDestino, nuevoCosto, tiempoMin)) {
+        lineasResultado[0] = "No se pudo actualizar la tarifa de la ruta.";
+        return;
+    }
+
+    sincronizarMapaVisual();
+    ultimoArbolMST.limpiar();
+    grafoVisual.limpiarResaltados();
+    grafoVisual.resaltarAristaRuta(grafoVisual.getCiudadOrigen(), grafoVisual.getCiudadDestino(), false);
+
+    lineasResultado[0] = "Ruta " + codOrigen + " -> " + codDestino +
+                         ": tarifa $" + to_string(costoAnterior) + " -> $" + to_string(nuevoCosto) +
+                         " | Tiempo: " + to_string(tiempoMin) + " min";
+    lineasResultado[1] = "Grafo de rutas recalculado en memoria y sincronizado con el mapa";
+    lineasResultado[2] = "Cambio guardado en data/rutas.txt";
+    lineasResultado[3] = "Clic izquierdo en boton: +$10 | Clic derecho en boton: -$10 (minimo $10)";
+}
+
+void AplicacionVisual::alternarVueloPasajeroRapido() {
+    vistaActual = VistaLienzo::ArbolEstructura;
+    limpiarLineasResultado("Edicion rapida: vuelo en pasajero (AVL)");
+
+    bool hayPax = false;
+    Pasajero pax = obtenerPasajeroActivo(hayPax);
+    if (!hayPax) {
+        lineasResultado[0] = "No hay pasajeros registrados en el AVL.";
+        return;
+    }
+
+    const ListaEnlazada<Vuelo>& vuelos = sistema.obtenerVuelos();
+    int totalVuelos = vuelos.tamano();
+    if (totalVuelos == 0) {
+        lineasResultado[0] = "No hay vuelos programados para asignar.";
+        return;
+    }
+
+    indiceVueloActivo = ((indiceVueloActivo % totalVuelos) + totalVuelos) % totalVuelos;
+    Vuelo vuelo = vuelos.obtener(indiceVueloActivo);
+    const NodoAVL* nodo = sistema.buscarPasajeroAVL(pax.getId());
+    bool yaTieneVuelo = (nodo != nullptr && nodo->dato.tieneVuelo(vuelo.obtenerCodigoVuelo()));
+
+    bool exito = yaTieneVuelo
+        ? sistema.quitarVueloDePasajero(pax.getId(), vuelo.obtenerCodigoVuelo())
+        : sistema.asignarVueloAPasajero(pax.getId(), vuelo.obtenerCodigoVuelo());
+
+    if (!exito) {
+        lineasResultado[0] = "No se pudo actualizar el vuelo " + vuelo.obtenerCodigoVuelo() +
+                             " en el pasajero " + pax.getId() + ".";
+        return;
+    }
+
+    for (int j = 0; j < TOTAL_BOTONES_ACCION; ++j) {
+        botonesAdmin[j].setActivo(j == 5);
+    }
+    modoArbolVista = 2;
+    ultimaAccionAdmin = 5;
+    mostrarArbolAVLVisual(pax.getId());
+
+    const NodoAVL* actualizado = sistema.buscarPasajeroAVL(pax.getId());
+    string vuelosTexto = (actualizado != nullptr) ? actualizado->dato.getVuelosTexto() : "Ninguno";
+
+    lineasResultado[0] = string(yaTieneVuelo ? "Quitado" : "Asignado") + " vuelo " +
+                         vuelo.obtenerCodigoVuelo() + " (" + vuelo.obtenerOrigenCodigo() + " -> " +
+                         vuelo.obtenerDestinoCodigo() + ") a " + pax.getNombre() + " (" + pax.getId() + ")";
+    lineasResultado[1] = truncarTexto("Vuelos actuales en AVL: " + vuelosTexto, 108);
+    lineasResultado[2] = "Cambio guardado en data/pasajeros.txt";
+    lineasResultado[3] = "Usa 'Vuelos y pasajeros' para cambiar vuelo o 'Vuelos pasajero (AVL)' para cambiar pasajero";
+}
+
 void AplicacionVisual::ejecutarAccionAdmin(int indiceAccion) {
     ultimaAccionCliente = -1;
     switch (indiceAccion) {
         case 0:
-            vistaActual = VistaLienzo::MapaGrafo;
-            limpiarLineasResultado("Aeronaves y tripulacion");
-            lineasResultado[0] = "Aeronaves cargadas: " + to_string(sistema.obtenerAeronaves().tamano()) +
-                                 " | Tripulantes cargados: " + to_string(sistema.obtenerTripulantes().tamano());
+            mostrarAeronavesYCrewAdmin();
             break;
         case 1:
-            vistaActual = VistaLienzo::MapaGrafo;
-            limpiarLineasResultado("Vuelos y pasajeros");
-            lineasResultado[0] = "Vuelos cargados: " + to_string(sistema.obtenerVuelos().tamano()) +
-                                 " | Pasajeros en AVL: " + to_string(sistema.obtenerArbolPasajeros().getCantidad());
+            mostrarVuelosYPasajerosAdmin();
             break;
         case 2:
             mostrarRutaEquipajeAdmin();
             break;
         case 3:
-            vistaActual = VistaLienzo::MapaGrafo;
-            limpiarLineasResultado("Prim (MST por costo)");
+            mostrarMSTAdmin(true);
             break;
         case 4:
-            vistaActual = VistaLienzo::MapaGrafo;
-            limpiarLineasResultado("Kruskal (MST por duracion)");
+            mostrarMSTAdmin(false);
             break;
         case 5:
-            vistaActual = VistaLienzo::ArbolEstructura;
-            arbolVisual.limpiar("Despliegue de arbol");
-            limpiarLineasResultado("Recorridos del arbol");
+            mostrarSiguienteArbolAdmin();
             break;
     }
+    ultimaAccionAdmin = indiceAccion;
 }
 
 void AplicacionVisual::renderizar() {
@@ -712,6 +1147,18 @@ void AplicacionVisual::renderizar() {
         for (int i = 0; i < TOTAL_BOTONES_ACCION; ++i) {
             botonesAdmin[i].renderizar(ventana, fuente);
         }
+    }
+
+    if (moduloActual == ModuloActivo::Administrativo) {
+        sf::RectangleShape sepAdmin(sf::Vector2f(239.0f, 1.0f));
+        sepAdmin.setPosition(sf::Vector2f(18.0f, 450.0f));
+        sepAdmin.setFillColor(sf::Color(46, 51, 60));
+        ventana.draw(sepAdmin);
+
+        CompatSFML::dibujarTexto(ventana, fuente, "Edicion rapida", 20.0f, 458.0f, 12, sf::Color(145, 153, 168));
+        btnAdminEstadoAeronave.renderizar(ventana, fuente);
+        btnAdminAjustarRuta.renderizar(ventana, fuente);
+        btnAdminToggleVueloPasajero.renderizar(ventana, fuente);
     }
 
     CompatSFML::dibujarTexto(ventana, fuente, "Clic izq: origen  |  Clic der: destino",
