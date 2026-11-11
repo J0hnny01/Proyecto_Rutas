@@ -82,7 +82,6 @@ void AplicacionVisual::inicializarInterfaz() {
     btnMaintEliminar.setColores(sf::Color(86, 40, 44), sf::Color(156, 56, 62));
 
     btnMaintVerEstructura.configurar(18.0f, 546.0f, 239.0f, 34.0f, "Ver en Mapa / Arbol", true, 12);
-    btnMaintRecargar.configurar(18.0f, 588.0f, 239.0f, 34.0f, "Recargar desde data/", true, 12);
 
     btnAdminIrMantenimientos.configurar(18.0f, 478.0f, 239.0f, 34.0f, "Abrir Mantenimientos (CRUD)", true, 12);
     btnAdminIrMantenimientos.setColores(sf::Color(36, 58, 86), sf::Color(52, 114, 206));
@@ -858,10 +857,6 @@ bool AplicacionVisual::manejarClicPanelMantenimiento(float mx, float my) {
         mostrarEstructuraDesdeMantenimiento();
         return true;
     }
-    if (btnMaintRecargar.contienePunto(mx, my)) {
-        recargarDatosDesdeMantenimiento();
-        return true;
-    }
     if (vistaActual == VistaLienzo::PanelMantenimiento) {
         bool cambioSeleccion = false;
         if (panelMantenimiento.manejarClic(mx, my, sistema, cambioSeleccion)) {
@@ -1179,7 +1174,6 @@ void AplicacionVisual::renderizar() {
 
         CompatSFML::dibujarTexto(ventana, fuente, "Verificacion y enlace", 20.0f, 526.0f, 12, sf::Color(145, 153, 168));
         btnMaintVerEstructura.renderizar(ventana, fuente);
-        btnMaintRecargar.renderizar(ventana, fuente);
 
         CompatSFML::dibujarTexto(ventana, fuente, "Clic en tabla: elegir fila para editar/eliminar",
                                  18.0f, 686.0f, 11, sf::Color(115, 123, 138));
@@ -1459,17 +1453,6 @@ void AplicacionVisual::mostrarEstructuraDesdeMantenimiento() {
         }
         mostrarVuelosPasajeroAVL();
     }
-}
-
-void AplicacionVisual::recargarDatosDesdeMantenimiento() {
-    sistema.cargarDatos();
-    sincronizarMapaVisual();
-    ultimoArbolMST.limpiar();
-    panelMantenimiento.ajustarSeleccion(panelMantenimiento.getIndiceSeleccionado(), sistema);
-    actualizarTextosMantenimiento();
-    vistaActual = VistaLienzo::PanelMantenimiento;
-    actualizarDetalleRegistroMantenimiento();
-    tituloResultado = "Archivos recargados desde " + sistema.obtenerDirectorioDatos() + "/";
 }
 
 string AplicacionVisual::limpiarCampoTexto(const string& texto) const {

@@ -73,7 +73,6 @@ private:
     BotonVisual btnMaintEditar;
     BotonVisual btnMaintEliminar;
     BotonVisual btnMaintVerEstructura;
-    BotonVisual btnMaintRecargar;
 
     BotonVisual btnAdminIrMantenimientos;
 
@@ -88,7 +87,6 @@ private:
     void actualizarDetalleRegistroMantenimiento();
     void finalizarCrudMantenimiento(int idxSeleccionado, const string& accionMensaje);
     void mostrarEstructuraDesdeMantenimiento();
-    void recargarDatosDesdeMantenimiento();
     void procesarEventos();
     void manejarClicIzquierdo(float mx, float my);
     void manejarClicDerecho(float mx, float my);
