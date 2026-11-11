@@ -69,11 +69,33 @@ int VisualizadorArbol::contarHojasGeneral(int idx) const {
     return total;
 }
 
+int VisualizadorArbol::calcularProfundidadBinaria(int idx) const {
+    if (idx < 0 || idx >= totalNodos) return -1;
+    int profIzq = calcularProfundidadBinaria(nodos[idx].izq);
+    int profDer = calcularProfundidadBinaria(nodos[idx].der);
+    int mayor = (profIzq > profDer) ? profIzq : profDer;
+    return mayor + 1;
+}
+
+int VisualizadorArbol::calcularProfundidadGeneral(int idx) const {
+    if (idx < 0 || idx >= totalNodos) return -1;
+    int hijo = nodos[idx].primerHijo;
+    if (hijo == -1) return 0;
+    int maxProf = 0;
+    while (hijo != -1) {
+        int profHijo = calcularProfundidadGeneral(hijo) + 1;
+        if (profHijo > maxProf) {
+            maxProf = profHijo;
+        }
+        hijo = nodos[hijo].siguienteHermano;
+    }
+    return maxProf;
+}
+
 void VisualizadorArbol::dibujarNodoVisual(sf::RenderWindow& ventana, const sf::Font& fuente,
-                                          int idx, float x, float y) const {
-    const float radio = 20.0f;
-    sf::CircleShape circulo(radio);
-    circulo.setOrigin(sf::Vector2f(radio, radio));
+                                          int idx, float x, float y, float radioNodo) const {
+    sf::CircleShape circulo(radioNodo);
+    circulo.setOrigin(sf::Vector2f(radioNodo, radioNodo));
     circulo.setPosition(sf::Vector2f(x, y));
 
     if (nodos[idx].resaltado) {
@@ -87,24 +109,27 @@ void VisualizadorArbol::dibujarNodoVisual(sf::RenderWindow& ventana, const sf::F
     }
     ventana.draw(circulo);
 
-    CompatSFML::dibujarTextoCentrado(ventana, fuente, nodos[idx].etiqueta, x, y, 12, sf::Color(242, 245, 250));
+    unsigned int tamEtiqueta = (radioNodo >= 17.0f) ? 12 : 10;
+    unsigned int tamSub = (radioNodo >= 17.0f) ? 11 : 10;
+    CompatSFML::dibujarTextoCentrado(ventana, fuente, nodos[idx].etiqueta, x, y, tamEtiqueta, sf::Color(242, 245, 250));
     if (!nodos[idx].subtexto.empty()) {
-        CompatSFML::dibujarTextoCentrado(ventana, fuente, nodos[idx].subtexto, x, y + 29.0f, 11, sf::Color(160, 170, 186));
+        CompatSFML::dibujarTextoCentrado(ventana, fuente, nodos[idx].subtexto,
+                                         x, y + radioNodo + 8.0f, tamSub, sf::Color(160, 170, 186));
     }
 }
 
 void VisualizadorArbol::dibujarBinario(sf::RenderWindow& ventana, const sf::Font& fuente,
-                                       int idx, float x, float y, float separacionX) const {
+                                       int idx, float x, float y, float separacionX,
+                                       float saltoVertical, float radioNodo) const {
     if (idx < 0 || idx >= totalNodos) return;
-
-    const float saltoVertical = 82.0f;
 
     if (nodos[idx].izq != -1) {
         float hijoX = x - separacionX;
         float hijoY = y + saltoVertical;
         CompatSFML::dibujarLinea(ventana, sf::Vector2f(x, y), sf::Vector2f(hijoX, hijoY),
                                  sf::Color(76, 86, 104), 1.8f);
-        dibujarBinario(ventana, fuente, nodos[idx].izq, hijoX, hijoY, separacionX * 0.52f);
+        dibujarBinario(ventana, fuente, nodos[idx].izq, hijoX, hijoY,
+                       separacionX * 0.52f, saltoVertical, radioNodo);
     }
 
     if (nodos[idx].der != -1) {
@@ -112,18 +137,19 @@ void VisualizadorArbol::dibujarBinario(sf::RenderWindow& ventana, const sf::Font
         float hijoY = y + saltoVertical;
         CompatSFML::dibujarLinea(ventana, sf::Vector2f(x, y), sf::Vector2f(hijoX, hijoY),
                                  sf::Color(76, 86, 104), 1.8f);
-        dibujarBinario(ventana, fuente, nodos[idx].der, hijoX, hijoY, separacionX * 0.52f);
+        dibujarBinario(ventana, fuente, nodos[idx].der, hijoX, hijoY,
+                       separacionX * 0.52f, saltoVertical, radioNodo);
     }
 
-    dibujarNodoVisual(ventana, fuente, idx, x, y);
+    dibujarNodoVisual(ventana, fuente, idx, x, y, radioNodo);
 }
 
 void VisualizadorArbol::dibujarGeneral(sf::RenderWindow& ventana, const sf::Font& fuente,
-                                       int idx, float xMin, float xMax, float y) const {
+                                       int idx, float xMin, float xMax, float y,
+                                       float saltoVertical, float radioNodo) const {
     if (idx < 0 || idx >= totalNodos) return;
 
     float x = (xMin + xMax) * 0.5f;
-    const float saltoVertical = 82.0f;
     int totalHojas = contarHojasGeneral(idx);
     if (totalHojas < 1) totalHojas = 1;
 
@@ -140,23 +166,43 @@ void VisualizadorArbol::dibujarGeneral(sf::RenderWindow& ventana, const sf::Font
 
         CompatSFML::dibujarLinea(ventana, sf::Vector2f(x, y), sf::Vector2f(hijoCentroX, hijoY),
                                  sf::Color(76, 86, 104), 1.8f);
-        dibujarGeneral(ventana, fuente, hijo, cursorX, cursorX + anchoHijo, hijoY);
+        dibujarGeneral(ventana, fuente, hijo, cursorX, cursorX + anchoHijo, hijoY,
+                       saltoVertical, radioNodo);
 
         cursorX += anchoHijo;
         hijo = nodos[hijo].siguienteHermano;
     }
 
-    dibujarNodoVisual(ventana, fuente, idx, x, y);
+    dibujarNodoVisual(ventana, fuente, idx, x, y, radioNodo);
 }
 
 void VisualizadorArbol::renderizar(sf::RenderWindow& ventana, const sf::Font& fuente) const {
     CompatSFML::dibujarTexto(ventana, fuente, tituloArbol, 300.0f, 68.0f, 15, sf::Color(220, 226, 236));
 
     if (raizIdx != -1) {
+        int profundidad = esArbolGeneral
+            ? calcularProfundidadGeneral(raizIdx)
+            : calcularProfundidadBinaria(raizIdx);
+
+        float yRaiz = 116.0f;
+        float saltoVertical = 76.0f;
+        float radioNodo = 20.0f;
+
+        if (profundidad >= 5) {
+            yRaiz = 110.0f;
+            radioNodo = (profundidad >= 7) ? 14.0f : ((profundidad == 6) ? 16.0f : 18.0f);
+            float yMaxCentro = 492.0f - (radioNodo + 14.0f);
+            saltoVertical = (yMaxCentro - yRaiz) / static_cast<float>(profundidad);
+            if (saltoVertical < 2.0f * radioNodo + 8.0f) {
+                radioNodo = (saltoVertical - 10.0f) * 0.5f;
+                if (radioNodo < 10.0f) radioNodo = 10.0f;
+            }
+        }
+
         if (esArbolGeneral) {
-            dibujarGeneral(ventana, fuente, raizIdx, 310.0f, 1166.0f, 130.0f);
+            dibujarGeneral(ventana, fuente, raizIdx, 310.0f, 1166.0f, yRaiz, saltoVertical, radioNodo);
         } else {
-            dibujarBinario(ventana, fuente, raizIdx, 738.0f, 130.0f, 190.0f);
+            dibujarBinario(ventana, fuente, raizIdx, 738.0f, yRaiz, 200.0f, saltoVertical, radioNodo);
         }
     } else {
         CompatSFML::dibujarTextoCentrado(ventana, fuente, "Sin datos cargados en el arbol",

@@ -30,12 +30,16 @@ private:
     string strPostorden;
 
     int contarHojasGeneral(int idx) const;
+    int calcularProfundidadBinaria(int idx) const;
+    int calcularProfundidadGeneral(int idx) const;
     void dibujarBinario(sf::RenderWindow& ventana, const sf::Font& fuente,
-                        int idx, float x, float y, float separacionX) const;
+                        int idx, float x, float y, float separacionX,
+                        float saltoVertical, float radioNodo) const;
     void dibujarGeneral(sf::RenderWindow& ventana, const sf::Font& fuente,
-                        int idx, float xMin, float xMax, float y) const;
+                        int idx, float xMin, float xMax, float y,
+                        float saltoVertical, float radioNodo) const;
     void dibujarNodoVisual(sf::RenderWindow& ventana, const sf::Font& fuente,
-                           int idx, float x, float y) const;
+                           int idx, float x, float y, float radioNodo) const;
 
 public:
     VisualizadorArbol();

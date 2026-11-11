@@ -195,6 +195,17 @@ ListaEnlazada<Vuelo> SistemaAerolinea::buscarVuelosDirectos(const string& codigo
     return encontrados;
 }
 
+bool SistemaAerolinea::existeVuelo(const string& codigoVuelo) const {
+    const ListaEnlazada<Vuelo>::NodoLista* actual = vuelos.obtenerCabeza();
+    while (actual != nullptr) {
+        if (actual->dato.obtenerCodigoVuelo() == codigoVuelo) {
+            return true;
+        }
+        actual = actual->siguiente;
+    }
+    return false;
+}
+
 string SistemaAerolinea::obtenerVuelosParaCamino(const ListaEnlazada<int>& indices) const {
     if (indices.tamano() < 2) {
         return "Sin tramos";
@@ -324,6 +335,32 @@ bool SistemaAerolinea::agregarCiudadAdmin(const Ciudad& ciudad) {
     return true;
 }
 
+bool SistemaAerolinea::modificarCiudadAdmin(const string& codigo, const string& nuevoNombre, float nuevaX, float nuevaY) {
+    if (codigo.empty() || nuevoNombre.empty()) {
+        return false;
+    }
+    const ListaEnlazada<Ciudad>::NodoLista* check = ciudades.obtenerCabeza();
+    while (check != nullptr) {
+        if (check->dato.obtenerCodigo() != codigo && check->dato.obtenerNombre() == nuevoNombre) {
+            return false;
+        }
+        check = check->siguiente;
+    }
+    ListaEnlazada<Ciudad>::NodoLista* actual = ciudades.obtenerCabeza();
+    while (actual != nullptr) {
+        if (actual->dato.obtenerCodigo() == codigo) {
+            actual->dato.establecerNombre(nuevoNombre);
+            actual->dato.establecerPosicion(nuevaX, nuevaY);
+            reconstruirArbolCiudades();
+            reconstruirGrafo();
+            GestorArchivos::guardarCiudades(resolverRutaArchivo("ciudades.txt"), ciudades);
+            return true;
+        }
+        actual = actual->siguiente;
+    }
+    return false;
+}
+
 bool SistemaAerolinea::eliminarCiudadAdmin(const string& codigo) {
     int idxCiudad = -1;
     int pos = 0;
@@ -440,6 +477,25 @@ bool SistemaAerolinea::agregarAeronaveAdmin(const Aeronave& aeronave) {
     return true;
 }
 
+bool SistemaAerolinea::modificarAeronaveAdmin(const string& placa, const string& nuevaMarca, const string& nuevoModelo, int nuevaCapacidad, const string& nuevoEstado) {
+    if (placa.empty() || nuevaMarca.empty() || nuevoModelo.empty() || nuevaCapacidad <= 0 || nuevoEstado.empty()) {
+        return false;
+    }
+    ListaEnlazada<Aeronave>::NodoLista* actual = aeronaves.obtenerCabeza();
+    while (actual != nullptr) {
+        if (actual->dato.getPlaca() == placa) {
+            actual->dato.setMarca(nuevaMarca);
+            actual->dato.setModelo(nuevoModelo);
+            actual->dato.setCapacidad(nuevaCapacidad);
+            actual->dato.setEstado(nuevoEstado);
+            GestorArchivos::guardarAeronaves(resolverRutaArchivo("aeronaves.txt"), aeronaves);
+            return true;
+        }
+        actual = actual->siguiente;
+    }
+    return false;
+}
+
 bool SistemaAerolinea::cambiarEstadoAeronaveAdmin(const string& placa, const string& nuevoEstado) {
     ListaEnlazada<Aeronave>::NodoLista* actual = aeronaves.obtenerCabeza();
     while (actual != nullptr) {
@@ -480,6 +536,24 @@ bool SistemaAerolinea::agregarTripulanteAdmin(const Tripulante& tripulante) {
     return true;
 }
 
+bool SistemaAerolinea::modificarTripulanteAdmin(const string& id, const string& nuevoNombre, const string& nuevoRol, const string& nuevaPlaca) {
+    if (id.empty() || nuevoNombre.empty() || nuevoRol.empty() || nuevaPlaca.empty()) {
+        return false;
+    }
+    ListaEnlazada<Tripulante>::NodoLista* actual = tripulantes.obtenerCabeza();
+    while (actual != nullptr) {
+        if (actual->dato.getId() == id) {
+            actual->dato.setNombre(nuevoNombre);
+            actual->dato.setRol(nuevoRol);
+            actual->dato.setPlacaAeronave(nuevaPlaca);
+            GestorArchivos::guardarTripulantes(resolverRutaArchivo("tripulacion.txt"), tripulantes);
+            return true;
+        }
+        actual = actual->siguiente;
+    }
+    return false;
+}
+
 bool SistemaAerolinea::eliminarTripulanteAdmin(const string& id) {
     for (int i = 0; i < tripulantes.tamano(); i++) {
         if (tripulantes.obtener(i).getId() == id) {
@@ -511,6 +585,29 @@ bool SistemaAerolinea::agregarVueloAdmin(const Vuelo& vuelo) {
     return true;
 }
 
+bool SistemaAerolinea::modificarVueloAdmin(const string& codigoVuelo, const string& origen, const string& destino, const string& placa, int nuevoCosto, int nuevoTiempoMin) {
+    if (codigoVuelo.empty() || origen == destino || nuevoCosto < 0 || nuevoTiempoMin < 0) {
+        return false;
+    }
+    if (!grafo.existeCiudad(origen) || !grafo.existeCiudad(destino)) {
+        return false;
+    }
+    ListaEnlazada<Vuelo>::NodoLista* actual = vuelos.obtenerCabeza();
+    while (actual != nullptr) {
+        if (actual->dato.obtenerCodigoVuelo() == codigoVuelo) {
+            actual->dato.establecerOrigenCodigo(origen);
+            actual->dato.establecerDestinoCodigo(destino);
+            actual->dato.establecerPlacaAeronave(placa);
+            actual->dato.establecerCosto(nuevoCosto);
+            actual->dato.establecerTiempoMin(nuevoTiempoMin);
+            GestorArchivos::guardarVuelos(resolverRutaArchivo("vuelos.txt"), vuelos);
+            return true;
+        }
+        actual = actual->siguiente;
+    }
+    return false;
+}
+
 bool SistemaAerolinea::eliminarVueloAdmin(const string& codigoVuelo) {
     for (int i = 0; i < vuelos.tamano(); i++) {
         if (vuelos.obtener(i).obtenerCodigoVuelo() == codigoVuelo) {
@@ -531,6 +628,24 @@ bool SistemaAerolinea::registrarPasajeroAdmin(const Pasajero& pasajero) {
         GestorArchivos::guardarPasajeros(resolverRutaArchivo("pasajeros.txt"), arbolPasajeros);
     }
     return insertado;
+}
+
+bool SistemaAerolinea::modificarPasajeroAdmin(const string& idPasajero, const string& nuevoNombre, int nuevasMaletas) {
+    if (idPasajero.empty() || nuevoNombre.empty() || nuevasMaletas < 0) {
+        return false;
+    }
+    const NodoAVL* nodo = arbolPasajeros.buscar(idPasajero);
+    if (nodo == nullptr) {
+        return false;
+    }
+    Pasajero actualizado(idPasajero, nuevoNombre, nuevasMaletas);
+    for (int i = 0; i < nodo->dato.getCantidadVuelos(); i++) {
+        actualizado.agregarVuelo(nodo->dato.getVuelo(i));
+    }
+    arbolPasajeros.eliminar(idPasajero);
+    arbolPasajeros.insertar(actualizado);
+    GestorArchivos::guardarPasajeros(resolverRutaArchivo("pasajeros.txt"), arbolPasajeros);
+    return true;
 }
 
 bool SistemaAerolinea::eliminarPasajeroAdmin(const string& idPasajero) {

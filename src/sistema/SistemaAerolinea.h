@@ -61,6 +61,7 @@ public:
     string formatearCaminoIndices(const ListaEnlazada<int>& indices) const;
     string obtenerVuelosParaCamino(const ListaEnlazada<int>& indices) const;
     ListaEnlazada<Vuelo> buscarVuelosDirectos(const string& codigoOrigen, const string& codigoDestino) const;
+    bool existeVuelo(const string& codigoVuelo) const;
 
     const NodoABB* buscarCiudadABB(const string& nombre) const;
     const NodoAVL* buscarPasajeroAVL(const string& id) const;
@@ -72,22 +73,27 @@ public:
     string obtenerResumenPasajerosPorVuelo(const string& codigoVuelo) const;
 
     bool agregarCiudadAdmin(const Ciudad& ciudad);
+    bool modificarCiudadAdmin(const string& codigo, const string& nuevoNombre, float nuevaX, float nuevaY);
     bool eliminarCiudadAdmin(const string& codigo);
     bool agregarRutaAdmin(const Ruta& ruta);
     bool modificarRutaAdmin(const string& origen, const string& destino, int nuevoCosto, int nuevoTiempoMin);
     bool eliminarRutaAdmin(const string& origen, const string& destino);
 
     bool agregarAeronaveAdmin(const Aeronave& aeronave);
+    bool modificarAeronaveAdmin(const string& placa, const string& nuevaMarca, const string& nuevoModelo, int nuevaCapacidad, const string& nuevoEstado);
     bool cambiarEstadoAeronaveAdmin(const string& placa, const string& nuevoEstado);
     bool eliminarAeronaveAdmin(const string& placa);
 
     bool agregarTripulanteAdmin(const Tripulante& tripulante);
+    bool modificarTripulanteAdmin(const string& id, const string& nuevoNombre, const string& nuevoRol, const string& nuevaPlaca);
     bool eliminarTripulanteAdmin(const string& id);
 
     bool agregarVueloAdmin(const Vuelo& vuelo);
+    bool modificarVueloAdmin(const string& codigoVuelo, const string& origen, const string& destino, const string& placa, int nuevoCosto, int nuevoTiempoMin);
     bool eliminarVueloAdmin(const string& codigoVuelo);
 
     bool registrarPasajeroAdmin(const Pasajero& pasajero);
+    bool modificarPasajeroAdmin(const string& idPasajero, const string& nuevoNombre, int nuevasMaletas);
     bool eliminarPasajeroAdmin(const string& idPasajero);
 
     const GrafoVuelos& obtenerGrafo() const;

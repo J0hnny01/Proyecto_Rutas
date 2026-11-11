@@ -3,3 +3,9 @@ TI-BOE02;Boeing;737-800;189;En vuelo
 TI-AIR03;Airbus;A321neo;220;Activa
 TI-EMB04;Embraer;E190;100;Activa
 TI-BOE05;Boeing;787-8;250;Mantenimiento
+TI-AIR06;Airbus;A330-200;260;Activa
+TI-BOE07;Boeing;737 MAX 9;192;En vuelo
+TI-EMB08;Embraer;E195-E2;132;Activa
+TI-AIR09;Airbus;A220-300;145;Activa
+TI-BOE10;Boeing;777-200;300;Mantenimiento
+TI-ATR11;ATR;72-600;72;Activa
